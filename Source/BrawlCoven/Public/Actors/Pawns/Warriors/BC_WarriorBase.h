@@ -16,9 +16,15 @@ class BRAWLCOVEN_API ABC_WarriorBase : public APawn, public	IAbilitySystemInterf
 	GENERATED_BODY()
 
 public:
-	ABC_WarriorBase();
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const;
+
+	ABC_WarriorBase();
+
+	virtual void Tick(float DeltaTime) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
 protected:
 	virtual void BeginPlay() override;
 
@@ -30,10 +36,7 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
-	
-public:	
-	virtual void Tick(float DeltaTime) override;
 
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+private:
+	void InitAbilityActorInfo();
 };

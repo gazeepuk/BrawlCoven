@@ -4,6 +4,7 @@
 #include "PlayerStates/BC_BattlePlayerState.h"
 
 #include "AbilitySystemComponent.h"
+#include "GameplayAbilitySystem/AttributeSets/BC_WarriorAttributeSet.h"
 
 ABC_BattlePlayerState::ABC_BattlePlayerState()
 {
@@ -11,7 +12,7 @@ ABC_BattlePlayerState::ABC_BattlePlayerState()
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
-	AttributeSet = CreateDefaultSubobject<UAttributeSet>("AttributeSet"); 
+	AttributeSet = CreateDefaultSubobject<UBC_WarriorAttributeSet>("AttributeSet"); 
 }
 
 UAbilitySystemComponent* ABC_BattlePlayerState::GetAbilitySystemComponent() const

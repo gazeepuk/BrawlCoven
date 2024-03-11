@@ -13,5 +13,9 @@ UCLASS()
 class BRAWLCOVEN_API UBC_AbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
+public:
+	void AbilityActorInfoSet();
+protected:
 	
+	void OnEffectApplied(UAbilitySystemComponent* ASC, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle);
 };

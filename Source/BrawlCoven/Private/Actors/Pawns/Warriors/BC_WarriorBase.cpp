@@ -4,6 +4,7 @@
 #include "Actors/Pawns/Warriors/BC_WarriorBase.h"
 
 #include "AbilitySystemComponent.h"
+#include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
 #include "PlayerStates/BC_BattlePlayerState.h"
 
 ABC_WarriorBase::ABC_WarriorBase()
@@ -30,6 +31,22 @@ void ABC_WarriorBase::BeginPlay()
 	
 }
 
+void ABC_WarriorBase::InitializeDefaultAttributes() const
+{
+	InitializePrimaryAttributes();
+	InitializeSecondaryAttributes();
+}
+
+void ABC_WarriorBase::InitializePrimaryAttributes() const
+{
+	ApplyEffectSpecToSelf(DefaultPrimaryAttributes);
+}
+
+void ABC_WarriorBase::InitializeSecondaryAttributes() const
+{
+	ApplyEffectSpecToSelf(DefaultSecondaryAttributes);
+}
+
 void ABC_WarriorBase::InitAbilityActorInfo()
 {
 	ABC_BattlePlayerState* BC_PlayerState = GetPlayerState<ABC_BattlePlayerState>();
@@ -38,6 +55,22 @@ void ABC_WarriorBase::InitAbilityActorInfo()
 
 	AbilitySystemComponent = BC_PlayerState->GetAbilitySystemComponent();
 	AttributeSet = BC_PlayerState->GetAttributeSet();
+
+	UBC_AbilitySystemComponent* BC_AbilitySystemComponent = Cast<UBC_AbilitySystemComponent>(AbilitySystemComponent);
+	if(BC_AbilitySystemComponent)
+	{
+		BC_AbilitySystemComponent->AbilityActorInfoSet();
+	}
+}
+
+void ABC_WarriorBase::ApplyEffectSpecToSelf(const TSubclassOf<UGameplayEffect>& AttributeClass, const float Level) const
+{
+	check(IsValid(GetAbilitySystemComponent()));
+	check(AttributeClass);
+
+	const FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
+	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(AttributeClass,Level,ContextHandle);
+	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), GetAbilitySystemComponent());
 }
 
 void ABC_WarriorBase::Tick(float DeltaTime)

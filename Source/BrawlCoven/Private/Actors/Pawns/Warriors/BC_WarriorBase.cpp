@@ -2,10 +2,10 @@
 
 
 #include "Actors/Pawns/Warriors/BC_WarriorBase.h"
-
 #include "AbilitySystemComponent.h"
 #include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
 #include "PlayerStates/BC_BattlePlayerState.h"
+
 
 ABC_WarriorBase::ABC_WarriorBase()
 {
@@ -28,8 +28,8 @@ UAttributeSet* ABC_WarriorBase::GetAttributeSet() const
 void ABC_WarriorBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
+
 
 void ABC_WarriorBase::InitializeDefaultAttributes() const
 {
@@ -47,6 +47,7 @@ void ABC_WarriorBase::InitializeSecondaryAttributes() const
 	ApplyEffectSpecToSelf(DefaultSecondaryAttributes);
 }
 
+
 void ABC_WarriorBase::InitAbilityActorInfo()
 {
 	ABC_BattlePlayerState* BC_PlayerState = GetPlayerState<ABC_BattlePlayerState>();
@@ -61,6 +62,8 @@ void ABC_WarriorBase::InitAbilityActorInfo()
 	{
 		BC_AbilitySystemComponent->AbilityActorInfoSet();
 	}
+
+	InitializeDefaultAttributes();
 }
 
 void ABC_WarriorBase::ApplyEffectSpecToSelf(const TSubclassOf<UGameplayEffect>& AttributeClass, const float Level) const

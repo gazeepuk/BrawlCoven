@@ -4,14 +4,6 @@
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 
-UBC_WarriorAttributeSet::UBC_WarriorAttributeSet()
-{
-	InitHealth(100.f);
-	InitSpeed(100.f);
-	InitStrength(100.f);
-	InitIntelligence(100.f);
-}
-
 
 void UBC_WarriorAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

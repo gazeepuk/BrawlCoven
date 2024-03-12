@@ -22,16 +22,16 @@ class BRAWLCOVEN_API UBC_WarriorAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
 public:
-	UBC_WarriorAttributeSet();
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+	
 	// Begin Vital Attributes
 	UPROPERTY(BlueprintReadOnly, Replicated = OnRep_Health, Category = "Vital Stats")
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UBC_WarriorAttributeSet, Health)
 	// End Vital Attributes
-
 
 	//Begin Primary Attributes
 	UPROPERTY(BlueprintReadOnly, Replicated = OnRep_Speed, Category = "Primary Stats")

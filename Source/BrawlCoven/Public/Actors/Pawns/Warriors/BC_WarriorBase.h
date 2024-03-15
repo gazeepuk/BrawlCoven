@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
+#include "Combat/CombatInterface.h"
 #include "GameFramework/Pawn.h"
 #include "BC_WarriorBase.generated.h"
 
@@ -16,7 +17,7 @@ class UAbilitySystemComponent;
 
 
 UCLASS(Abstract)
-class BRAWLCOVEN_API ABC_WarriorBase : public APawn, public	IAbilitySystemInterface
+class BRAWLCOVEN_API ABC_WarriorBase : public APawn, public	IAbilitySystemInterface, public ICombatInterface
 {
 	GENERATED_BODY()
 
@@ -28,9 +29,11 @@ public:
 	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 	
+	virtual uint8 GetPlayerLevel() override;
 protected:
 	virtual void BeginPlay() override;
 	

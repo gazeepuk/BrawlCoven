@@ -104,3 +104,10 @@ void ABC_WarriorBase::OnRep_PlayerState()
 	InitAbilityActorInfo();
 }
 
+uint8 ABC_WarriorBase::GetPlayerLevel()
+{
+	const ABC_BattlePlayerState* BC_PlayerState = GetPlayerState<ABC_BattlePlayerState>();
+	check(BC_PlayerState)
+	return BC_PlayerState->GetPlayerLevel();
+}
+

@@ -1,8 +1,11 @@
 // Ivan Piankouski / GazeePuk
 
 #include "GameplayAbilitySystem/AttributeSets/BC_WarriorAttributeSet.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
+#include "GameFramework/Character.h"
 
 
 void UBC_WarriorAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -27,25 +30,62 @@ void UBC_WarriorAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME_CONDITION_NOTIFY(UBC_WarriorAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 }
 
+void UBC_WarriorAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& OutProps) const
+{
+	OutProps.EffectContextHandle = Data.EffectSpec.GetContext();
+	OutProps.SourceASC = OutProps.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
+
+	if (IsValid(OutProps.SourceASC) && OutProps.SourceASC->AbilityActorInfo.IsValid() && OutProps.SourceASC->AbilityActorInfo->AvatarActor.
+		IsValid())
+	{
+		OutProps.SourceAvatarActor = OutProps.SourceASC->AbilityActorInfo->AvatarActor.Get();
+		OutProps.SourceController = OutProps.SourceASC->AbilityActorInfo->PlayerController.Get();
+		if (OutProps.SourceController == nullptr && OutProps.SourceAvatarActor != nullptr)
+		{
+			APawn* SourcePawn = Cast<APawn>(OutProps.SourceAvatarActor);
+			if (SourcePawn)
+			{
+				OutProps.SourceController = SourcePawn->GetController();
+			}
+		}
+		if (OutProps.SourceController)
+		{
+			OutProps.SourcePawn = Cast<ACharacter>(OutProps.SourceController->GetPawn());
+		}
+	}
+
+	if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
+	{
+		OutProps.TargetAvatarActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
+		OutProps.TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
+		OutProps.TargetPawn = Cast<APawn>(OutProps.TargetAvatarActor);
+		OutProps.TargetASC =  UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OutProps.TargetAvatarActor);
+	}
+}
+
 void UBC_WarriorAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
-	if(Attribute == GetHealthAttribute())
+	if (Attribute == GetHealthAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue,0.f, GetMaxHealth());
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
 	}
-	else if(NewValue < 0.f)
+	else if (NewValue < 0.f)
 	{
 		NewValue = 0.f;
 	}
+	
 }
 
 void UBC_WarriorAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
 
-	if(Data.EvaluatedData.Attribute == GetHealthAttribute())
+	FEffectProperties Props;
+	SetEffectProperties(Data, Props);
+
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 	}

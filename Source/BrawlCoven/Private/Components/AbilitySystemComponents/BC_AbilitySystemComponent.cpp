@@ -11,4 +11,14 @@ void UBC_AbilitySystemComponent::AbilityActorInfoSet()
 void UBC_AbilitySystemComponent::OnEffectApplied(UAbilitySystemComponent* ASC, const FGameplayEffectSpec& EffectSpec,
                                                  FActiveGameplayEffectHandle ActiveEffectHandle)
 {
+	FGameplayTagContainer TagContainer;
+	EffectSpec.GetAllAssetTags(TagContainer);
+
+	EffectAssetTags.Broadcast(TagContainer);
+
+	for (const FGameplayTag& Tag : TagContainer)
+	{
+		const FString DebugMessage = FString::Printf(TEXT("GE Tag applied: %s"), *Tag.ToString());
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, DebugMessage);
+	}
 }

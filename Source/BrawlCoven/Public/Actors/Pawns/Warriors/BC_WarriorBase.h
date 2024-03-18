@@ -9,6 +9,7 @@
 #include "GameFramework/Pawn.h"
 #include "BC_WarriorBase.generated.h"
 
+class UBC_GameplayAbility;
 class UGameplayEffect;
 class UAttributeSet;
 class UAbilitySystemComponent;
@@ -41,15 +42,16 @@ protected:
 	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
 	
 
-	UPROPERTY(EditDefaultsOnly, Category = "Warriorinfo")
+	UPROPERTY(EditDefaultsOnly, Category = "WarriorInfo")
 	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes;
-	UPROPERTY(EditDefaultsOnly, Category = "Warriorinfo")
+	UPROPERTY(EditDefaultsOnly, Category = "WarriorInfo")
 	TSubclassOf<UGameplayEffect> DefaultSecondaryAttributes;
 	
 	void InitializeDefaultAttributes() const;
 	void InitializePrimaryAttributes() const;
 	void InitializeSecondaryAttributes() const;
 
+	void AddWarriorAbilities();
 private:
 
 	UPROPERTY()
@@ -57,10 +59,13 @@ private:
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Warriorinfo", meta = (AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category = "WarriorInfo", meta = (AllowPrivateAccess))
 	FGameplayTag WarriorType;
-	UPROPERTY(EditDefaultsOnly, Category = "Warriorinfo", meta = (AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category = "WarriorInfo", meta = (AllowPrivateAccess))
 	FName WarriorName;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "WarriorInfo", meta = (AllowPrivateAccess = true))
+	TArray<TSubclassOf<UBC_GameplayAbility>> StartupAbilities;
 	
 	void InitAbilityActorInfo();
 	void ApplyEffectSpecToSelf(const TSubclassOf<UGameplayEffect>& AttributeClass, float Level = 1) const;

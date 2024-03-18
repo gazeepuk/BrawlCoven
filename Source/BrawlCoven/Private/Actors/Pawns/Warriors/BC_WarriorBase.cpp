@@ -47,6 +47,17 @@ void ABC_WarriorBase::InitializeSecondaryAttributes() const
 	ApplyEffectSpecToSelf(DefaultSecondaryAttributes);
 }
 
+void ABC_WarriorBase::AddWarriorAbilities()
+{
+	UBC_AbilitySystemComponent* ASC = CastChecked<UBC_AbilitySystemComponent>(AbilitySystemComponent);
+	if(!HasAuthority())
+	{
+		return;
+	}
+
+	ASC->AddWarriorAbilities(StartupAbilities);
+}
+
 
 void ABC_WarriorBase::InitAbilityActorInfo()
 {
@@ -94,6 +105,7 @@ void ABC_WarriorBase::PossessedBy(AController* NewController)
 
 	//Init actor info for the server
 	InitAbilityActorInfo();
+	AddWarriorAbilities();
 }
 
 void ABC_WarriorBase::OnRep_PlayerState()

@@ -3,9 +3,20 @@
 
 #include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
 
+#include "GameplayAbilitySystem/Abilities/BC_GameplayAbility.h"
+
 void UBC_AbilitySystemComponent::AbilityActorInfoSet()
 {
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UBC_AbilitySystemComponent::OnEffectApplied);
+}
+
+void UBC_AbilitySystemComponent::AddWarriorAbilities(const TArray<TSubclassOf<UBC_GameplayAbility>>& StartupAbilities)
+{
+	for(const TSubclassOf<UBC_GameplayAbility>& AbilityClass : StartupAbilities)
+	{
+		/*const*/ FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
+		GiveAbility(AbilitySpec);
+	}
 }
 
 void UBC_AbilitySystemComponent::OnEffectApplied(UAbilitySystemComponent* ASC, const FGameplayEffectSpec& EffectSpec,

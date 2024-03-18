@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
+#include "GameplayAbilitySystem/Abilities/BC_GameplayAbility.h"
 #include "BC_AbilitySystemComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTagsDelegate, const FGameplayTagContainer&);
@@ -15,9 +16,10 @@ class BRAWLCOVEN_API UBC_AbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
 public:
-	void AbilityActorInfoSet();
-
 	FEffectAssetTagsDelegate EffectAssetTags;
+
+	void AbilityActorInfoSet();
+	void AddWarriorAbilities(const TArray<TSubclassOf<UBC_GameplayAbility>>& StartupAbilities);
 protected:
 	void OnEffectApplied(UAbilitySystemComponent* ASC, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle);
 };

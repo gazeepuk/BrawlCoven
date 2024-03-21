@@ -20,6 +20,9 @@ public:
 
 	void AbilityActorInfoSet();
 	void AddWarriorAbilities(const TArray<TSubclassOf<UBC_GameplayAbility>>& StartupAbilities);
+
+	void AbilityInputTagHeld(const FGameplayTag& InputTag);
+	void AbilityInputTagReleased(const FGameplayTag& InputTag);
 protected:
 	void OnEffectApplied(UAbilitySystemComponent* ASC, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle);
 };

@@ -98,6 +98,11 @@ public:
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UBC_WarriorAttributeSet, MaxHealth)
 	//End Secondary Attributes
+
+	//Begin Meta Attributes
+	UPROPERTY(BlueprintReadOnly)
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(UBC_WarriorAttributeSet, IncomingDamage)
 	
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;

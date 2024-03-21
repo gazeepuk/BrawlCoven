@@ -9,10 +9,10 @@ FBC_GameplayTags FBC_GameplayTags::GameplayTags;
 void FBC_GameplayTags::InitializeNativeGameplayTags()
 {
 	//Primary Attributes
-	GameplayTags.Attributes_Primary_Intelligence = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Intelligence"), "Increase Magic dealing attacks");
+	GameplayTags.Attributes_Primary_Intelligence = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Intelligence"), "Increase Magic dealing damage");
 	GameplayTags.Attributes_Primary_Resilience = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Resilience"), "Increase protection");
 	GameplayTags.Attributes_Primary_Speed = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Speed"), "Increase doge rate");
-	GameplayTags.Attributes_Primary_Strength = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Strength"), "Increase Magic dealing attacks");
+	GameplayTags.Attributes_Primary_Strength = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Strength"), "Increase Physical dealing damage");
 	GameplayTags.Attributes_Primary_Vigor = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Vigor"), "Increase Health");
 
 	//Secondary Attributes
@@ -25,8 +25,21 @@ void FBC_GameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Attributes_Secondary_CritDmg = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Vital.Health"), "Warrior Health");
 
 	//Elements
-	GameplayTags.Elements_Destruction = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Elements.Destruction"));
-	GameplayTags.Elements_Erosion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Elements.Erosion"));
-	GameplayTags.Elements_Magnification = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Elements.Magnification"));
-	GameplayTags.Elements_Sustenance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Elements.Sustenance"));
+	GameplayTags.Elements_Destruction = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Elements.Destruction"), "Units of this type have high damage, but low survival");
+	GameplayTags.Elements_Erosion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Elements.Erosion"), "Units of this type specialize on debuffing opponents");
+	GameplayTags.Elements_Magnification = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Elements.Magnification"), "Units of this type specialize on buffing themselves");
+	GameplayTags.Elements_Sustenance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Elements.Sustenance"), "Units of this type have high survival, but low damage");
+
+	//InputTags
+	GameplayTags.InputTag_LMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.LMB"), "Input Tag for Left Mouse Button");
+	GameplayTags.InputTag_RMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.RMB"), "Input Tag for Right Mouse Button");
+	GameplayTags.InputTag_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.1"), "Input Tag for 1 key");
+	GameplayTags.InputTag_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.2"), "Input Tag for 2 key");
+	GameplayTags.InputTag_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.3"), "Input Tag for 3 key");
+	GameplayTags.InputTag_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.4"), "Input Tag for 4 key");
+
+	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage"));
+
+	GameplayTags.Event_Montage_ApplyAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.ApplyDamage"));
+	GameplayTags.Event_Montage_SpawnProjectile = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.SpawnProjectile"));
 }

@@ -5,10 +5,12 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
+#include "WarriorDataAsset.h"
 #include "Combat/CombatInterface.h"
 #include "GameFramework/Pawn.h"
 #include "BC_WarriorBase.generated.h"
 
+class UWarriorDataAsset;
 class UBC_GameplayAbility;
 class UGameplayEffect;
 class UAttributeSet;
@@ -35,6 +37,10 @@ public:
 	virtual void OnRep_PlayerState() override;
 	
 	virtual uint8 GetPlayerLevel() override;
+
+	FORCEINLINE
+	FName GetWarriorName() const {return WarriorDataAsset->WarriorName;}
+
 protected:
 	virtual void BeginPlay() override;
 	
@@ -53,19 +59,13 @@ protected:
 
 	void AddWarriorAbilities();
 private:
-
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
 
-	UPROPERTY(EditDefaultsOnly, Category = "WarriorInfo", meta = (AllowPrivateAccess))
-	FGameplayTag WarriorType;
-	UPROPERTY(EditDefaultsOnly, Category = "WarriorInfo", meta = (AllowPrivateAccess))
-	FName WarriorName;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "WarriorInfo", meta = (AllowPrivateAccess = true))
-	TArray<TSubclassOf<UBC_GameplayAbility>> StartupAbilities;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UWarriorDataAsset> WarriorDataAsset;
 	
 	void InitAbilityActorInfo();
 	void ApplyEffectSpecToSelf(const TSubclassOf<UGameplayEffect>& AttributeClass, float Level = 1) const;

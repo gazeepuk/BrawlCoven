@@ -89,6 +89,26 @@ void UBC_WarriorAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMod
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 	}
+	
+	if(Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	{
+		const float LocalIncomingDamage = GetIncomingDamage();
+		SetIncomingDamage(0.f);
+		if(LocalIncomingDamage > 0.f)
+		{
+			const float NewHealth = GetHealth() - LocalIncomingDamage;
+			if(NewHealth < 0.f)
+			{
+				SetHealth(0.f);
+			}
+			else
+			{
+				SetHealth(NewHealth);
+			}
+
+			const bool bFatal = NewHealth <= 0.f;
+		}
+	}
 }
 
 void UBC_WarriorAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const

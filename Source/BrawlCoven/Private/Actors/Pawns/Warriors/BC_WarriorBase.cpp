@@ -3,6 +3,7 @@
 
 #include "Actors/Pawns/Warriors/BC_WarriorBase.h"
 #include "AbilitySystemComponent.h"
+#include "Actors/Pawns/Warriors/WarriorDataAsset.h"
 #include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
 #include "PlayerStates/BC_BattlePlayerState.h"
 
@@ -28,6 +29,8 @@ UAttributeSet* ABC_WarriorBase::GetAttributeSet() const
 void ABC_WarriorBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	check(WarriorDataAsset);
 }
 
 
@@ -50,12 +53,19 @@ void ABC_WarriorBase::InitializeSecondaryAttributes() const
 void ABC_WarriorBase::AddWarriorAbilities()
 {
 	UBC_AbilitySystemComponent* ASC = CastChecked<UBC_AbilitySystemComponent>(AbilitySystemComponent);
-	if(!HasAuthority())
+	if (!HasAuthority())
 	{
 		return;
 	}
-
-	ASC->AddWarriorAbilities(StartupAbilities);
+	
+	const TArray<TSubclassOf<UBC_GameplayAbility>> WarriorStartupAbilities
+	{
+		WarriorDataAsset->NormalAttackAbility,
+		WarriorDataAsset->SkillAbility,
+		WarriorDataAsset->UltimateAbility
+	};
+	
+	ASC->AddWarriorAbilities(WarriorStartupAbilities);
 }
 
 
@@ -69,7 +79,7 @@ void ABC_WarriorBase::InitAbilityActorInfo()
 	AttributeSet = BC_PlayerState->GetAttributeSet();
 
 	UBC_AbilitySystemComponent* BC_AbilitySystemComponent = Cast<UBC_AbilitySystemComponent>(AbilitySystemComponent);
-	if(BC_AbilitySystemComponent)
+	if (BC_AbilitySystemComponent)
 	{
 		BC_AbilitySystemComponent->AbilityActorInfoSet();
 	}
@@ -83,20 +93,19 @@ void ABC_WarriorBase::ApplyEffectSpecToSelf(const TSubclassOf<UGameplayEffect>& 
 	check(AttributeClass);
 
 	const FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
-	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(AttributeClass,Level,ContextHandle);
+	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(
+		AttributeClass, Level, ContextHandle);
 	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), GetAbilitySystemComponent());
 }
 
 void ABC_WarriorBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ABC_WarriorBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 void ABC_WarriorBase::PossessedBy(AController* NewController)
@@ -122,4 +131,3 @@ uint8 ABC_WarriorBase::GetPlayerLevel()
 	check(BC_PlayerState)
 	return BC_PlayerState->GetPlayerLevel();
 }
-

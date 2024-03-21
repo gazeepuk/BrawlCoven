@@ -30,7 +30,7 @@ class BRAWLCOVEN_API UBC_InputConfig : public UDataAsset
 public:
 
 	const UInputAction* FindAbilityActionForTag(const FGameplayTag& InputTag, bool bLogNotFound = false) const;
-	
+	 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "InputActions")
 	TArray<FBCInputAction> AbilityInputActions;
 };

@@ -12,10 +12,55 @@ void UBC_AbilitySystemComponent::AbilityActorInfoSet()
 
 void UBC_AbilitySystemComponent::AddWarriorAbilities(const TArray<TSubclassOf<UBC_GameplayAbility>>& StartupAbilities)
 {
-	for(const TSubclassOf<UBC_GameplayAbility>& AbilityClass : StartupAbilities)
+	for (const TSubclassOf<UBC_GameplayAbility>& AbilityClass : StartupAbilities)
 	{
-		/*const*/ FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
-		GiveAbility(AbilitySpec);
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
+		if (const UBC_GameplayAbility* BCAbility = Cast<UBC_GameplayAbility>(AbilitySpec.Ability))
+		{
+			AbilitySpec.DynamicAbilityTags.AddTag(BCAbility->StartupInputTag);
+			GiveAbility(AbilitySpec);
+		}
+
+	}
+}
+
+void UBC_AbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
+{
+	if(!InputTag.IsValid())
+	{
+		return;
+	}
+
+	for(FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if(AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			AbilitySpecInputPressed(AbilitySpec);
+			if(!AbilitySpec.IsActive())
+			{
+				TryActivateAbility(AbilitySpec.Handle);
+			}
+		}
+	}
+}
+
+void UBC_AbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& InputTag)
+{
+	if(!InputTag.IsValid())
+	{
+		return;
+	}
+
+	for(FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if(AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			AbilitySpecInputReleased(AbilitySpec);
+			if(!AbilitySpec.IsActive())
+			{
+				TryActivateAbility(AbilitySpec.Handle);
+			}
+		}
 	}
 }
 

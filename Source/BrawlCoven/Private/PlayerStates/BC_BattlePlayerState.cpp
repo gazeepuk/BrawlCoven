@@ -14,7 +14,7 @@ ABC_BattlePlayerState::ABC_BattlePlayerState()
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
-	AttributeSet = CreateDefaultSubobject<UBC_WarriorAttributeSet>("AttributeSet"); 
+	AttributeSet = CreateDefaultSubobject<UBC_WarriorAttributeSet>("AttributeSet");
 }
 
 void ABC_BattlePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

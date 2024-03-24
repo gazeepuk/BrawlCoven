@@ -14,9 +14,6 @@ class BRAWLCOVEN_API UBC_GameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 
-	UFUNCTION(BlueprintCallable)
-	void SetTargetASC(UAbilitySystemComponent* InTargetASC) { TargetASC = InTargetASC; }
-
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	FGameplayTag StartupInputTag;

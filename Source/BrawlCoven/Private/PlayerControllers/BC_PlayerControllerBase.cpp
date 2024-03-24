@@ -18,6 +18,10 @@ void ABC_PlayerControllerBase::BeginPlay()
 
 	check(InputContext);
 
+	if(HasAuthority())
+	{
+		return;
+	}
 	//Add InputContext
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
 		GetLocalPlayer());

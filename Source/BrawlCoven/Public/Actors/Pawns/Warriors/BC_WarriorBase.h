@@ -10,6 +10,7 @@
 #include "GameFramework/Pawn.h"
 #include "BC_WarriorBase.generated.h"
 
+class UCombatComponent;
 class UWarriorDataAsset;
 class UBC_GameplayAbility;
 class UGameplayEffect;
@@ -46,7 +47,8 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
-	
+	UPROPERTY()
+	TObjectPtr<UCombatComponent> CombatComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "WarriorInfo")
 	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes;

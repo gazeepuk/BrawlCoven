@@ -4,6 +4,7 @@
 #include "Actors/Pawns/Warriors/BC_WarriorBase.h"
 #include "AbilitySystemComponent.h"
 #include "Actors/Pawns/Warriors/WarriorDataAsset.h"
+#include "Combat/Components/CombatComponent.h"
 #include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
 #include "PlayerStates/BC_BattlePlayerState.h"
 
@@ -14,6 +15,8 @@ ABC_WarriorBase::ABC_WarriorBase()
 
 	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>("SkeletalMesh");
 	SetRootComponent(SkeletalMesh);
+
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
 }
 
 UAbilitySystemComponent* ABC_WarriorBase::GetAbilitySystemComponent() const

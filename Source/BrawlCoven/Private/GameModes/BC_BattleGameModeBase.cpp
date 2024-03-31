@@ -3,7 +3,9 @@
 
 #include "GameModes/BC_BattleGameModeBase.h"
 
+#include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
 #include "GameFramework/GameSession.h"
+#include "GameplayAbilitySystem/AttributeSets/BC_WarriorAttributeSet.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerControllers/BC_BattlePlayerController.h"
 #include "PlayerStates/BC_BattlePlayerState.h"
@@ -11,11 +13,28 @@
 ABC_BattleGameModeBase::ABC_BattleGameModeBase()
 {
 	PlayerStateClass = ABC_BattlePlayerState::StaticClass();
-	PlayerControllerClass = ABC_BattlePlayerController::StaticClass();	
+	PlayerControllerClass = ABC_BattlePlayerController::StaticClass();
+	AbilitySystemComponent = CreateDefaultSubobject<UBC_AbilitySystemComponent>("AbilitySystemComponent");
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full);
+	AttributeSet = CreateDefaultSubobject<UBC_WarriorAttributeSet>("AttributeSet");
+}
+
+void ABC_BattleGameModeBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	
+	check(InitStatsGameplayEffectClass);
+	
+	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+	ContextHandle.AddSourceObject(this);
+	const FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(InitStatsGameplayEffectClass, 1, ContextHandle);
+	AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*EffectSpecHandle.Data.Get(), AbilitySystemComponent);
 }
 
 FString ABC_BattleGameModeBase::InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId,
-	const FString& Options, const FString& Portal)
+                                              const FString& Options, const FString& Portal)
 {
 	FString ErrorMessage = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, Portal);
 	if(HasAuthority())

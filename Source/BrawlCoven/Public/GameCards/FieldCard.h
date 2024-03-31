@@ -17,6 +17,10 @@ public:
 	UFieldCard();
 	
 	virtual bool IsCardValid() override;
-	virtual void UseGameCard(const UAbilitySystemComponent* TargetASC, const UAbilitySystemComponent* SourceASC) override;
-protected:
+	virtual void UseGameCard(const UAbilitySystemComponent* SourceASC, const UAbilitySystemComponent* TargetASC) override;
+	
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	virtual const UAttributeSet* GetAttributeSet() const override;
+	virtual uint8 GetPlayerLevel() override;
+	
 };

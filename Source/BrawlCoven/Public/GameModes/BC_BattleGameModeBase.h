@@ -7,6 +7,7 @@
 #include "GameModes/BC_GameModeBase.h"
 #include "BC_BattleGameModeBase.generated.h"
 
+class ABattlePosition;
 class UBC_WarriorAttributeSet;
 class UAbilitySystemComponent;
 class ABC_BattlePlayerState;
@@ -22,14 +23,22 @@ public:
 	ABC_BattleGameModeBase();
 protected:
 	virtual void BeginPlay() override;
-	
+
+	//GameplayAbilitySystem
 	UPROPERTY(BlueprintReadOnly, Category = "GAS")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 	UPROPERTY(BlueprintReadOnly, Category = "GAS")
 	TObjectPtr<UBC_WarriorAttributeSet> AttributeSet;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS")
 	TSubclassOf<UGameplayEffect> InitStatsGameplayEffectClass;
-	
+
+	//Battle
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Battle")
+	TSoftObjectPtr<ABattlePosition> BattlePosition1;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Battle")
+	TSoftObjectPtr<ABattlePosition> BattlePosition2;
+
+	//Players
 	UPROPERTY()
 	TObjectPtr<ABC_BattlePlayerState> Player1;
 	UPROPERTY()

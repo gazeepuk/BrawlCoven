@@ -6,6 +6,7 @@
 #include "Actors/Pawns/Warriors/WarriorDataAsset.h"
 #include "Combat/Components/CombatComponent.h"
 #include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
+#include "GameplayAbilitySystem/AttributeSets/BC_WarriorAttributeSet.h"
 #include "PlayerStates/BC_BattlePlayerState.h"
 
 
@@ -27,6 +28,19 @@ UAbilitySystemComponent* ABC_WarriorBase::GetAbilitySystemComponent() const
 UAttributeSet* ABC_WarriorBase::GetAttributeSet() const
 {
 	return AttributeSet;
+}
+
+float ABC_WarriorBase::GetSpeed() const
+{
+	const UBC_WarriorAttributeSet* WarriorAttributeSet = CastChecked<UBC_WarriorAttributeSet>(AttributeSet);
+	const float WarriorSpeed = WarriorAttributeSet->GetSpeed();
+	return WarriorSpeed;
+}
+
+bool ABC_WarriorBase::IsAlive() const
+{
+	const UBC_WarriorAttributeSet* WarriorAttributeSet = CastChecked<UBC_WarriorAttributeSet>(AttributeSet);
+	return WarriorAttributeSet->GetHealth() > 0;
 }
 
 void ABC_WarriorBase::BeginPlay()

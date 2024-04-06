@@ -12,7 +12,8 @@
 				"Engine",
 				"GameplayAbilities",
 				"CoreUObject",
-				"EnhancedInput"
+				"EnhancedInput",
+				"SqliteGameDB"
 			]
 		}
 	],

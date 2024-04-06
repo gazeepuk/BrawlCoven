@@ -53,6 +53,7 @@ FString ABC_BattleGameModeBase::InitNewPlayer(APlayerController* NewPlayerContro
 		}
 		else
 		{
+			GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Yellow, "Extra player");
 			//UGameplayStatics::RemovePlayer(NewPlayerController, true);
 		}
 	}

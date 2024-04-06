@@ -2,15 +2,23 @@
 
 
 #include "GameCards/AbilityCard.h"
-
 #include "AbilitySystemComponent.h"
-#include "Actors/Pawns/Warriors/BC_WarriorBase.h"
 #include "GameplayAbilitySystem/AttributeSets/BC_WarriorAttributeSet.h"
+#include "Kismet/GameplayStatics.h"
+#include "PlayerStates/BC_BattlePlayerState.h"
+
+UAbilityCard::UAbilityCard()
+{
+	if(GetWorld())
+	{
+		OwningPlayer = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPlayerState<ABC_BattlePlayerState>();
+	}
+}
 
 UAbilitySystemComponent* UAbilityCard::GetAbilitySystemComponent() const
 {
-	check(OwningWarrior);
-	return OwningWarrior->GetAbilitySystemComponent();
+	check(OwningPlayer);
+	return OwningPlayer->GetAbilitySystemComponent();
 }
 
 const UAttributeSet* UAbilityCard::GetAttributeSet() const
@@ -20,6 +28,7 @@ const UAttributeSet* UAbilityCard::GetAttributeSet() const
 
 uint8 UAbilityCard::GetPlayerLevel()
 {
-	check(OwningWarrior)
-	return OwningWarrior->GetPlayerLevel();
+	check(OwningPlayer)
+	return OwningPlayer->GetPlayerLevel();
 }
+

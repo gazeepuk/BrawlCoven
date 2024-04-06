@@ -2,20 +2,24 @@
 
 
 #include "Combat/Battle/Battle.h"
+#include "Combat/Battle/BattlePosition.h"
 
 #include "Actors/Pawns/Warriors/BC_WarriorBase.h"
 #include "Combat/Components/CombatComponent.h"
+#include "PlayerControllers/BC_BattlePlayerController.h"
 
-void UBattle::InitBattle(ABC_WarriorBase* PlayerWarrior1, ABC_WarriorBase* PlayerWarrior2)
+void UBattle::InitBattle(const FBattleInitInfo& BattleInitInfo)
 {
-	Warrior1 = PlayerWarrior1;
-	Warrior2 = PlayerWarrior2;
-}
+	Player1 = BattleInitInfo.Player1;
+	Player2 = BattleInitInfo.Player2;
 
-void UBattle::TurnRequest(ABC_WarriorBase* Warrior)
-{
-	TurnOrder.AddUnique(Warrior);
-	StartTurn();
+	Warrior1 = BattlePosition1->SpawnWarrior(BattleInitInfo.WarriorClass1, Player1);
+	Warrior2 = BattlePosition2->SpawnWarrior(BattleInitInfo.WarriorClass2, Player2);
+	
+	WarriorCycleDistances.Add(Warrior1, NextTurnDistance);
+	WarriorCycleDistances.Add(Warrior2, NextTurnDistance);
+
+	
 }
 
 void UBattle::StartTurn()
@@ -26,19 +30,21 @@ void UBattle::StartTurn()
 	}
 	bReadyForNextTurn = false;
 
-	const ABC_WarriorBase* ActiveWarrior = TurnOrder[0];
+	ABC_WarriorBase* ActiveWarrior = GetNextTurnWarrior();
 
 	UCombatComponent* CombatComponent = ActiveWarrior->GetComponentByClass<UCombatComponent>();
 	check(CombatComponent);
 
 	CombatComponent->StartWarriorTurn();
+
+
+	PreviousWarrior = ActiveWarrior;
 	CombatComponent->OnTurnEnded.AddUniqueDynamic(this, &UBattle::SetReadyForNextTurn);
-	TurnOrder.RemoveAt(0);
 }
 
 bool UBattle::IsReadyForNextTurn() const
 {
-	return TurnOrder.IsValidIndex(0) && bReadyForNextTurn;
+	return Warrior1->IsAlive() && Warrior2->IsAlive() && bReadyForNextTurn;
 }
 
 void UBattle::SetReadyForNextTurn()
@@ -49,4 +55,34 @@ void UBattle::SetReadyForNextTurn()
 	{
 		StartTurn();
 	}
+}
+
+TObjectPtr<ABC_WarriorBase> UBattle::GetNextTurnWarrior()
+{
+
+	while(WarriorCycleDistances[Warrior1] > 0 && WarriorCycleDistances[Warrior2] > 0)
+	{
+		if(Warrior1 != PreviousWarrior)
+		{
+			WarriorCycleDistances.FindChecked(Warrior1) -= Warrior1->GetSpeed();
+		}
+		if(Warrior2 != PreviousWarrior)
+		{
+			WarriorCycleDistances.FindChecked(Warrior2) -= Warrior2->GetSpeed();
+		}
+	}
+
+	
+	if(Warrior1 != PreviousWarrior)
+	{
+		WarriorCycleDistances.FindChecked(Warrior1) += WarriorCycleDistances.FindChecked(Warrior1) < 0 ? NextTurnDistance : 0;
+	}
+	if(Warrior2 != PreviousWarrior)
+	{
+		WarriorCycleDistances.FindChecked(Warrior2) += WarriorCycleDistances.FindChecked(Warrior2) < 0 ? NextTurnDistance : 0;
+	}
+	
+	const TObjectPtr<ABC_WarriorBase> NextWarrior = Warrior1->GetSpeed() < Warrior2->GetSpeed() ? Warrior1 : Warrior2;
+	
+	return NextWarrior;
 }

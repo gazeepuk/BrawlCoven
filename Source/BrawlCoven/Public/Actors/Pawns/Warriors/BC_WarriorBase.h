@@ -20,7 +20,7 @@ class UAbilitySystemComponent;
 
 
 
-UCLASS(Abstract)
+UCLASS()
 class BRAWLCOVEN_API ABC_WarriorBase : public APawn, public	IAbilitySystemInterface, public ICombatInterface
 {
 	GENERATED_BODY()
@@ -42,6 +42,8 @@ public:
 	FORCEINLINE
 	FName GetWarriorName() const {return WarriorDataAsset->WarriorName;}
 
+	float GetSpeed() const;
+	bool IsAlive() const;
 protected:
 	virtual void BeginPlay() override;
 	

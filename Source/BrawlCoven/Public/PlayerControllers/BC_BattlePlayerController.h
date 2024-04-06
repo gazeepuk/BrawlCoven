@@ -17,6 +17,7 @@ class BRAWLCOVEN_API ABC_BattlePlayerController : public ABC_PlayerControllerBas
 public:
 	ABC_BattlePlayerController();
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UBattleKitComponent> BattleKitComponent;
+
 };

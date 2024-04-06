@@ -13,7 +13,8 @@
 				"GameplayAbilities",
 				"CoreUObject",
 				"EnhancedInput",
-				"SqliteGameDB"
+				"SqliteGameDB",
+				"UMG"
 			]
 		}
 	],

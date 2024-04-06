@@ -10,13 +10,16 @@ class UAbilityCard;
 class UFieldCard;
 class ABC_WarriorBase;
 
-USTRUCT()
+USTRUCT(Blueprintable)
 struct FBattleKit
 {
 	GENERATED_BODY()
-	
+	bool IsValid() const;
+	UPROPERTY(EditAnywhere)
 	TArray<TSubclassOf<ABC_WarriorBase>> WarriorClasses;
+	UPROPERTY(EditAnywhere)
 	TArray<TSubclassOf<UFieldCard>> FieldCardClasses;
+	UPROPERTY(EditAnywhere)
 	TArray<TSubclassOf<UAbilityCard>> AbilityCardClasses;
 };
 
@@ -28,7 +31,11 @@ class BRAWLCOVEN_API UBattleKitComponent : public UActorComponent
 public:	
 	UBattleKitComponent();
 
+	UPROPERTY(EditAnywhere)
+	FBattleKit TemporaryTestKit;
+	
 protected:
+	
 	virtual void BeginPlay() override;
 private:
 	TMap<TSubclassOf<ABC_WarriorBase>, bool> WarriorEnablement;

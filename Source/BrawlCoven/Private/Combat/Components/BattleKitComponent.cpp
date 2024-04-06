@@ -5,7 +5,13 @@
 #include "Actors/Pawns/Warriors/BC_WarriorBase.h"
 #include "GameCards/AbilityCard.h"
 #include "GameCards/FieldCard.h"
+#include "PlayerControllers/BC_BattlePlayerController.h"
 
+
+bool FBattleKit::IsValid() const
+{
+	return WarriorClasses.Num() > 0 && WarriorClasses.Num() <=3 && FieldCardClasses.Num() > 0 && FieldCardClasses.Num() <=3;
+}
 
 UBattleKitComponent::UBattleKitComponent()
 {
@@ -20,16 +26,9 @@ void UBattleKitComponent::BeginPlay()
 	Super::BeginPlay();
 
 	//TODO: Get FBattleKit struct from DB
-	const FBattleKit BattleKit =
-		FBattleKit
-		(
-			{ABC_WarriorBase::StaticClass(), ABC_WarriorBase::StaticClass(), ABC_WarriorBase::StaticClass()},
-			{UFieldCard::StaticClass(), UFieldCard::StaticClass(), UFieldCard::StaticClass()},
-			{UAbilityCard::StaticClass(), UAbilityCard::StaticClass(), UAbilityCard::StaticClass()}
-		);
-
-	WarriorClasses = BattleKit.WarriorClasses;
-
+	checkf(TemporaryTestKit.IsValid(), TEXT("BattleKit is Invalid"));
+	
+	WarriorClasses = TemporaryTestKit.WarriorClasses;
 	//Setup enable Warriors
 	for (const TSubclassOf<ABC_WarriorBase>& WarriorClass : WarriorClasses)
 	{
@@ -38,14 +37,14 @@ void UBattleKitComponent::BeginPlay()
 	}
 
 	//Create FieldCards
-	for (const TSubclassOf<UFieldCard>& FieldCardClass : BattleKit.FieldCardClasses)
+	for (const TSubclassOf<UFieldCard>& FieldCardClass : TemporaryTestKit.FieldCardClasses)
 	{
 		TObjectPtr<UFieldCard> FieldCard = NewObject<UFieldCard>(this, FieldCardClass);
 		FieldCards.Add(FieldCard);
 	}
 
 	//Create AbilityCards
-	for (const TSubclassOf<UAbilityCard>& AbilityCardClass : BattleKit.AbilityCardClasses)
+	for (const TSubclassOf<UAbilityCard>& AbilityCardClass : TemporaryTestKit.AbilityCardClasses)
 	{
 		TObjectPtr<UAbilityCard> AbilityCard = NewObject<UAbilityCard>(this, AbilityCardClass);
 		AbilityCards.Add(AbilityCard);

@@ -3,38 +3,31 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemInterface.h"
 #include "PlayerStates/BC_PlayerStateBase.h"
 #include "BC_BattlePlayerState.generated.h"
 
+class UBattleKitComponent;
+class ABC_WarriorBase;
 class UAbilitySystemComponent;
 class UAttributeSet;
 /**
  * 
  */
 UCLASS()
-class BRAWLCOVEN_API ABC_BattlePlayerState : public ABC_PlayerStateBase, public IAbilitySystemInterface
+class BRAWLCOVEN_API ABC_BattlePlayerState : public ABC_PlayerStateBase
 {
 	GENERATED_BODY()
 
 public:
 	ABC_BattlePlayerState();
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	UAttributeSet* GetAttributeSet() const;
+	FORCEINLINE TArray<ABC_WarriorBase*>& GetPlayerWarriors() { return PlayerWarriors; }
+	void AddWarrior(const TObjectPtr<ABC_WarriorBase>& InWarrior) const;
 	
-	FORCEINLINE uint8 GetPlayerLevel() const { return Level; }
 protected:
-	UPROPERTY()
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
-
-	UPROPERTY()
-	TObjectPtr<UAttributeSet> AttributeSet;
-
-private:
-	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_Level)
-	uint8 Level = 1;
-	UFUNCTION()
-	void OnRep_Level(uint8 OldLevel);
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Battle|Components")
+	TObjectPtr<UBattleKitComponent> BattleKitComponent;
+	UPROPERTY(BlueprintReadOnly, Category = "Battle|Components")
+	TArray<ABC_WarriorBase*> PlayerWarriors;
 };

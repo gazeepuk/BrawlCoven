@@ -19,7 +19,6 @@ public:
 	UAbilityCard();
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual const UAttributeSet* GetAttributeSet() const override;
-	virtual uint8 GetPlayerLevel() override;
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<ABC_BattlePlayerState> OwningPlayer;

@@ -6,6 +6,7 @@
 UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	SetIsReplicated(true);
 }
 
 

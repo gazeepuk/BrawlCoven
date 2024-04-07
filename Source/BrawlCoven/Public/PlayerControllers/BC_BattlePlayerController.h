@@ -14,10 +14,4 @@ UCLASS()
 class BRAWLCOVEN_API ABC_BattlePlayerController : public ABC_PlayerControllerBase
 {
 	GENERATED_BODY()
-public:
-	ABC_BattlePlayerController();
-protected:
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UBattleKitComponent> BattleKitComponent;
-
 };

@@ -88,6 +88,10 @@ void UBC_WarriorAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMod
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+		if(GetHealth() <=0 )
+		{
+			OnEmptyHealth.Broadcast();
+		}
 	}
 	
 	if(Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())

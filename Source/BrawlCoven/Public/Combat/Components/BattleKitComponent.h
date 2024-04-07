@@ -33,14 +33,16 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	FBattleKit TemporaryTestKit;
+
+	void AddWarrior(const TObjectPtr<ABC_WarriorBase>& InWarrior);
 	
 protected:
 	
 	virtual void BeginPlay() override;
-private:
-	TMap<TSubclassOf<ABC_WarriorBase>, bool> WarriorEnablement;
 	
 	TArray<TSubclassOf<ABC_WarriorBase>> WarriorClasses;
+	TArray<TObjectPtr<ABC_WarriorBase>> Warriors;
+	
 	TArray<TObjectPtr<UFieldCard>> FieldCards;
 	TArray<TObjectPtr<UAbilityCard>> AbilityCards;
 };

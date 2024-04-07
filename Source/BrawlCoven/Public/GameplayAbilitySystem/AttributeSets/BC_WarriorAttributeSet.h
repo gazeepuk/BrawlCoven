@@ -7,6 +7,7 @@
 #include "AbilitySystemComponent.h"
 #include "BC_WarriorAttributeSet.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEmptyHealthSignature);
 
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
@@ -56,6 +57,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+
+	FOnEmptyHealthSignature OnEmptyHealth;
 	
 	// Begin Vital Attributes
 	UPROPERTY(BlueprintReadOnly, Replicated = OnRep_Health, Category = "Vital Stats")

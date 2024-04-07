@@ -7,6 +7,8 @@
 #include "UI/WidgetControllers/BC_UserWidgetController.h"
 #include "BC_HUD.generated.h"
 
+class UAbilitySystemComponent;
+class UAttributeSet;
 class UBC_UserWidgetController;
 class UBC_UserWidget;
 /**
@@ -20,15 +22,17 @@ class BRAWLCOVEN_API ABC_HUD : public AHUD
 public:
 	UFUNCTION(BlueprintGetter)
 	FORCEINLINE
-	UUserWidget* GetOverlayWidget() const {return OverlayWidget;}
+	UBC_UserWidget* GetOverlayWidget() const { return OverlayWidget; }
+
 	UBC_UserWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& InWidgetControllerParams);
+	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
+
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Widgets")
-	TObjectPtr<UUserWidget> OverlayWidget;
+	TObjectPtr<UBC_UserWidget> OverlayWidget;
 	UPROPERTY(BlueprintReadWrite, Category = "WidgetControllers")
 	TObjectPtr<UBC_UserWidgetController> OverlayWidgetController;
-	
-	virtual void BeginPlay() override;
+
 private:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget> OverlayWidgetClass;

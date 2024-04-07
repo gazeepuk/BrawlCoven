@@ -13,8 +13,7 @@ void UBattle::InitBattle(const FBattleInitInfo& BattleInitInfo)
 	Player1 = BattleInitInfo.Player1;
 	Player2 = BattleInitInfo.Player2;
 
-	Warrior1 = BattlePosition1->SpawnWarrior(BattleInitInfo.WarriorClass1, Player1);
-	Warrior2 = BattlePosition2->SpawnWarrior(BattleInitInfo.WarriorClass2, Player2);
+	
 	
 	WarriorCycleDistances.Add(Warrior1, NextTurnDistance);
 	WarriorCycleDistances.Add(Warrior2, NextTurnDistance);

@@ -7,16 +7,26 @@
 #include "Combat/Components/CombatComponent.h"
 #include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
 #include "GameplayAbilitySystem/AttributeSets/BC_WarriorAttributeSet.h"
+#include "Kismet/GameplayStatics.h"
 #include "PlayerStates/BC_BattlePlayerState.h"
+#include "UI/HUD/BC_HUD.h"
 
 
 ABC_WarriorBase::ABC_WarriorBase()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>("SkeletalMesh");
 	SetRootComponent(SkeletalMesh);
 
+	//GAS
+	AbilitySystemComponent = CreateDefaultSubobject<UBC_AbilitySystemComponent>("AbilitySystemComponent");
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+	AttributeSet = CreateDefaultSubobject<UBC_WarriorAttributeSet>("AttributeSet");
+	Cast<UBC_WarriorAttributeSet>(AttributeSet)->OnEmptyHealth.AddDynamic(this, &ThisClass::OnDeath);
+	//Battle Components
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
 }
 
@@ -43,14 +53,6 @@ bool ABC_WarriorBase::IsAlive() const
 	return WarriorAttributeSet->GetHealth() > 0;
 }
 
-void ABC_WarriorBase::BeginPlay()
-{
-	Super::BeginPlay();
-
-	check(WarriorDataAsset);
-}
-
-
 void ABC_WarriorBase::InitializeDefaultAttributes() const
 {
 	InitializePrimaryAttributes();
@@ -59,41 +61,36 @@ void ABC_WarriorBase::InitializeDefaultAttributes() const
 
 void ABC_WarriorBase::InitializePrimaryAttributes() const
 {
-	ApplyEffectSpecToSelf(DefaultPrimaryAttributes);
+	ApplyEffectSpecToSelf(WarriorDataAsset->PrimaryAttributes);
 }
 
 void ABC_WarriorBase::InitializeSecondaryAttributes() const
 {
-	ApplyEffectSpecToSelf(DefaultSecondaryAttributes);
+	ApplyEffectSpecToSelf(WarriorDataAsset->SecondaryAttributes);
 }
 
-void ABC_WarriorBase::AddWarriorAbilities()
+void ABC_WarriorBase::AddWarriorAbilities() const
 {
-	UBC_AbilitySystemComponent* ASC = CastChecked<UBC_AbilitySystemComponent>(AbilitySystemComponent);
-	if (!HasAuthority())
-	{
-		return;
-	}
-	
+	check(WarriorDataAsset);
+
 	const TArray<TSubclassOf<UBC_GameplayAbility>> WarriorStartupAbilities
 	{
 		WarriorDataAsset->NormalAttackAbility,
 		WarriorDataAsset->SkillAbility,
 		WarriorDataAsset->UltimateAbility
 	};
-	
+
+	UBC_AbilitySystemComponent* ASC = CastChecked<UBC_AbilitySystemComponent>(AbilitySystemComponent);
 	ASC->AddWarriorAbilities(WarriorStartupAbilities);
 }
 
 
 void ABC_WarriorBase::InitAbilityActorInfo()
 {
-	ABC_BattlePlayerState* BC_PlayerState = GetPlayerState<ABC_BattlePlayerState>();
-	check(BC_PlayerState)
-	BC_PlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(BC_PlayerState, this);
+	AddWarriorAbilities();
 
-	AbilitySystemComponent = BC_PlayerState->GetAbilitySystemComponent();
-	AttributeSet = BC_PlayerState->GetAttributeSet();
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
 
 	UBC_AbilitySystemComponent* BC_AbilitySystemComponent = Cast<UBC_AbilitySystemComponent>(AbilitySystemComponent);
 	if (BC_AbilitySystemComponent)
@@ -102,6 +99,21 @@ void ABC_WarriorBase::InitAbilityActorInfo()
 	}
 
 	InitializeDefaultAttributes();
+
+	ABC_BattlePlayerState* BC_PlayerState = GetPlayerState<ABC_BattlePlayerState>();
+	check(BC_PlayerState);
+
+	/*APlayerController* PlayerController = GetController<APlayerController>();
+	if(PlayerController)
+	{
+		ABC_HUD* HUD = PlayerController->GetHUD<ABC_HUD>();
+		if(!HUD)
+		{
+			return;
+		}
+		
+		HUD->InitOverlay(PlayerController, BC_PlayerState, AbilitySystemComponent, AttributeSet);
+	}*/
 }
 
 void ABC_WarriorBase::ApplyEffectSpecToSelf(const TSubclassOf<UGameplayEffect>& AttributeClass, const float Level) const
@@ -115,14 +127,9 @@ void ABC_WarriorBase::ApplyEffectSpecToSelf(const TSubclassOf<UGameplayEffect>& 
 	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), GetAbilitySystemComponent());
 }
 
-void ABC_WarriorBase::Tick(float DeltaTime)
+void ABC_WarriorBase::OnDeath()
 {
-	Super::Tick(DeltaTime);
-}
-
-void ABC_WarriorBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	//TODO: death behavior
 }
 
 void ABC_WarriorBase::PossessedBy(AController* NewController)
@@ -131,7 +138,6 @@ void ABC_WarriorBase::PossessedBy(AController* NewController)
 
 	//Init actor info for the server
 	InitAbilityActorInfo();
-	AddWarriorAbilities();
 }
 
 void ABC_WarriorBase::OnRep_PlayerState()
@@ -140,11 +146,4 @@ void ABC_WarriorBase::OnRep_PlayerState()
 
 	//Init actor info for the client
 	InitAbilityActorInfo();
-}
-
-uint8 ABC_WarriorBase::GetPlayerLevel()
-{
-	const ABC_BattlePlayerState* BC_PlayerState = GetPlayerState<ABC_BattlePlayerState>();
-	check(BC_PlayerState)
-	return BC_PlayerState->GetPlayerLevel();
 }

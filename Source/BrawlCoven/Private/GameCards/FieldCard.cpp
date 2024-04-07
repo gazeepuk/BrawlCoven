@@ -40,8 +40,3 @@ const UAttributeSet* UFieldCard::GetAttributeSet() const
 {
 	return GetAbilitySystemComponent()->GetAttributeSet(UBC_WarriorAttributeSet::StaticClass());
 }
-
-uint8 UFieldCard::GetPlayerLevel()
-{
-	return Super::GetPlayerLevel();
-}

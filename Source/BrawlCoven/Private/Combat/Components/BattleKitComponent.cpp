@@ -5,7 +5,6 @@
 #include "Actors/Pawns/Warriors/BC_WarriorBase.h"
 #include "GameCards/AbilityCard.h"
 #include "GameCards/FieldCard.h"
-#include "PlayerControllers/BC_BattlePlayerController.h"
 
 
 bool FBattleKit::IsValid() const
@@ -15,27 +14,31 @@ bool FBattleKit::IsValid() const
 
 UBattleKitComponent::UBattleKitComponent()
 {
-	SetIsReplicated(true);
-
 	PrimaryComponentTick.bCanEverTick = false;
+	//SetIsReplicated(true);
 }
 
+
+void UBattleKitComponent::AddWarrior(const TObjectPtr<ABC_WarriorBase>& InWarrior)
+{
+	Warriors.AddUnique(InWarrior);
+}
 
 void UBattleKitComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if(GetOwner()->HasAuthority())
+	{
+		return;
+	}
 	//TODO: Get FBattleKit struct from DB
+	const FString OwnerName = GetOwner()->GetName() + (GetOwner()->HasAuthority() ? " Server" : " Client");
+	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Red, OwnerName);
 	checkf(TemporaryTestKit.IsValid(), TEXT("BattleKit is Invalid"));
 	
 	WarriorClasses = TemporaryTestKit.WarriorClasses;
-	//Setup enable Warriors
-	for (const TSubclassOf<ABC_WarriorBase>& WarriorClass : WarriorClasses)
-	{
-		//Find prevents duplicate Warriors
-		WarriorEnablement.FindOrAdd(WarriorClass, true);
-	}
-
+	
 	//Create FieldCards
 	for (const TSubclassOf<UFieldCard>& FieldCardClass : TemporaryTestKit.FieldCardClasses)
 	{

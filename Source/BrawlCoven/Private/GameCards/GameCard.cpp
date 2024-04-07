@@ -8,10 +8,6 @@ void UGameCard::UseGameCard(const UAbilitySystemComponent* SourceASC, const UAbi
 	check(IsCardValid())
 }
 
-uint8 UGameCard::GetPlayerLevel()
-{
-	return ICombatInterface::GetPlayerLevel();
-}
 
 UAbilitySystemComponent* UGameCard::GetAbilitySystemComponent() const
 {

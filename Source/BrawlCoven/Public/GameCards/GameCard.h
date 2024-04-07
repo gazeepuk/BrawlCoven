@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
-#include "Combat/CombatInterface.h"
 #include "UObject/NoExportTypes.h"
 #include "GameCard.generated.h"
 
@@ -17,7 +16,7 @@ class UAbilityCard;
  * 
  */
 UCLASS()
-class BRAWLCOVEN_API UGameCard : public UObject, public IAbilitySystemInterface, public ICombatInterface
+class BRAWLCOVEN_API UGameCard : public UObject, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
@@ -32,8 +31,6 @@ public:
 
 	virtual bool IsCardValid() { return GameCardAbility != nullptr; }
 
-	UFUNCTION(BlueprintGetter)
-	virtual uint8 GetPlayerLevel() override;
 	UFUNCTION(BlueprintGetter, Category = "Gameplay Ability System")
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UFUNCTION(BlueprintGetter, Category = "Gameplay Ability System")

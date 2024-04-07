@@ -4,6 +4,7 @@
 #include "UI/HUD/BC_HUD.h"
 
 #include "Blueprint/UserWidget.h"
+#include "UI/UserWidgets/BC_UserWidget.h"
 #include "UI/WidgetControllers/BC_UserWidgetController.h"
 
 UBC_UserWidgetController* ABC_HUD::GetOverlayWidgetController(const FWidgetControllerParams& InWidgetControllerParams)
@@ -16,12 +17,17 @@ UBC_UserWidgetController* ABC_HUD::GetOverlayWidgetController(const FWidgetContr
 	return OverlayWidgetController;
 }
 
-void ABC_HUD::BeginPlay()
+void ABC_HUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)
 {
-	Super::BeginPlay();
+	check(OverlayWidgetClass);
+	check(OverlayWidgetControllerClass);
+	OverlayWidget = CreateWidget<UBC_UserWidget>(GetWorld(), OverlayWidgetClass);
 
-	OverlayWidget = CreateWidget<UUserWidget>(GetWorld(), OverlayWidgetClass);
-	OverlayWidget->AddToViewport();
+	const FWidgetControllerParams WidgetControllerParams(PC,PS,ASC,AS);
+	OverlayWidgetController = GetOverlayWidgetController(WidgetControllerParams);
 
+	OverlayWidget->SetWidgetController(OverlayWidgetController);
 	
+	OverlayWidget->AddToViewport();
 }
+

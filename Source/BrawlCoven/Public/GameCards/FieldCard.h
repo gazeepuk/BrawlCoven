@@ -21,6 +21,5 @@ public:
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual const UAttributeSet* GetAttributeSet() const override;
-	virtual uint8 GetPlayerLevel() override;
 	
 };

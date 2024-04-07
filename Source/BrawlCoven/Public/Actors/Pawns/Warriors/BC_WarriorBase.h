@@ -6,7 +6,6 @@
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
 #include "WarriorDataAsset.h"
-#include "Combat/CombatInterface.h"
 #include "GameFramework/Pawn.h"
 #include "BC_WarriorBase.generated.h"
 
@@ -21,7 +20,7 @@ class UAbilitySystemComponent;
 
 
 UCLASS()
-class BRAWLCOVEN_API ABC_WarriorBase : public APawn, public	IAbilitySystemInterface, public ICombatInterface
+class BRAWLCOVEN_API ABC_WarriorBase : public APawn, public	IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -31,37 +30,27 @@ public:
 
 	ABC_WarriorBase();
 	
-	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 	
-	virtual uint8 GetPlayerLevel() override;
-
 	FORCEINLINE
 	FName GetWarriorName() const {return WarriorDataAsset->WarriorName;}
 
 	float GetSpeed() const;
 	bool IsAlive() const;
-protected:
-	virtual void BeginPlay() override;
 	
+protected:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
 	UPROPERTY()
 	TObjectPtr<UCombatComponent> CombatComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "WarriorInfo")
-	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes;
-	UPROPERTY(EditDefaultsOnly, Category = "WarriorInfo")
-	TSubclassOf<UGameplayEffect> DefaultSecondaryAttributes;
-	
+
 	void InitializeDefaultAttributes() const;
 	void InitializePrimaryAttributes() const;
 	void InitializeSecondaryAttributes() const;
 
-	void AddWarriorAbilities();
+	void AddWarriorAbilities() const;
 private:
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
@@ -69,8 +58,10 @@ private:
 	TObjectPtr<UAttributeSet> AttributeSet;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UWarriorDataAsset> WarriorDataAsset;
+	const UWarriorDataAsset* WarriorDataAsset;
 	
 	void InitAbilityActorInfo();
 	void ApplyEffectSpecToSelf(const TSubclassOf<UGameplayEffect>& AttributeClass, float Level = 1) const;
+	UFUNCTION()
+	void OnDeath();
 };

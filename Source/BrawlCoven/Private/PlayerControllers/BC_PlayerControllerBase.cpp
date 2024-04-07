@@ -17,16 +17,14 @@ void ABC_PlayerControllerBase::BeginPlay()
 	Super::BeginPlay();
 
 	check(InputContext);
-
-	if(HasAuthority())
-	{
-		return;
-	}
+	
 	//Add InputContext
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
 		GetLocalPlayer());
-	check(Subsystem);
-	Subsystem->AddMappingContext(InputContext, 0);
+	if(Subsystem)
+	{
+		Subsystem->AddMappingContext(InputContext, 0);
+	}
 
 	//Setup behavior
 	bShowMouseCursor = true;
@@ -50,7 +48,7 @@ void ABC_PlayerControllerBase::SetupInputComponent()
 
 void ABC_PlayerControllerBase::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, *InputTag.ToString());
+
 }
 
 void ABC_PlayerControllerBase::AbilityInputTagReleased(FGameplayTag InputTag)

@@ -7,9 +7,7 @@
 #include "Combat/Components/CombatComponent.h"
 #include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
 #include "GameplayAbilitySystem/AttributeSets/BC_WarriorAttributeSet.h"
-#include "Kismet/GameplayStatics.h"
 #include "PlayerStates/BC_BattlePlayerState.h"
-#include "UI/HUD/BC_HUD.h"
 
 
 ABC_WarriorBase::ABC_WarriorBase()
@@ -40,11 +38,15 @@ UAttributeSet* ABC_WarriorBase::GetAttributeSet() const
 	return AttributeSet;
 }
 
-float ABC_WarriorBase::GetSpeed() const
+template <class T>
+T* ABC_WarriorBase::GetAttributeSet() const
 {
-	const UBC_WarriorAttributeSet* WarriorAttributeSet = CastChecked<UBC_WarriorAttributeSet>(AttributeSet);
-	const float WarriorSpeed = WarriorAttributeSet->GetSpeed();
-	return WarriorSpeed;
+	return Cast<T>(AttributeSet);
+}
+
+float ABC_WarriorBase::GetActionSpeed() const
+{
+	return CombatComponent->GetActionSpeed();;
 }
 
 bool ABC_WarriorBase::IsAlive() const

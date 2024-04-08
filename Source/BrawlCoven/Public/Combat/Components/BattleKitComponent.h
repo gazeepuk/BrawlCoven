@@ -11,7 +11,7 @@ class UFieldCard;
 class ABC_WarriorBase;
 
 USTRUCT(Blueprintable)
-struct FBattleKit
+struct FBattleKitInfo
 {
 	GENERATED_BODY()
 	bool IsValid() const;
@@ -31,10 +31,9 @@ class BRAWLCOVEN_API UBattleKitComponent : public UActorComponent
 public:	
 	UBattleKitComponent();
 
-	UPROPERTY(EditAnywhere)
-	FBattleKit TemporaryTestKit;
 
 	void AddWarrior(const TObjectPtr<ABC_WarriorBase>& InWarrior);
+	FORCEINLINE FBattleKitInfo GetBattleKitInfo() {return TemporaryTestKit;}
 	
 protected:
 	
@@ -45,4 +44,7 @@ protected:
 	
 	TArray<TObjectPtr<UFieldCard>> FieldCards;
 	TArray<TObjectPtr<UAbilityCard>> AbilityCards;
+private:
+	UPROPERTY(EditAnywhere)
+	FBattleKitInfo TemporaryTestKit;
 };

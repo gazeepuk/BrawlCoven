@@ -106,7 +106,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FGameplayAttributeData IncomingDamage;
 	ATTRIBUTE_ACCESSORS(UBC_WarriorAttributeSet, IncomingDamage)
-	
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;
 	UFUNCTION()

@@ -7,7 +7,7 @@
 #include "GameCards/FieldCard.h"
 
 
-bool FBattleKit::IsValid() const
+bool FBattleKitInfo::IsValid() const
 {
 	return WarriorClasses.Num() > 0 && WarriorClasses.Num() <=3 && FieldCardClasses.Num() > 0 && FieldCardClasses.Num() <=3;
 }

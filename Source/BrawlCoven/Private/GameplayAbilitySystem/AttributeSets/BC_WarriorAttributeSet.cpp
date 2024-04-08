@@ -42,7 +42,7 @@ void UBC_WarriorAttributeSet::SetEffectProperties(const FGameplayEffectModCallba
 		OutProps.SourceController = OutProps.SourceASC->AbilityActorInfo->PlayerController.Get();
 		if (OutProps.SourceController == nullptr && OutProps.SourceAvatarActor != nullptr)
 		{
-			APawn* SourcePawn = Cast<APawn>(OutProps.SourceAvatarActor);
+			const APawn* SourcePawn = Cast<APawn>(OutProps.SourceAvatarActor);
 			if (SourcePawn)
 			{
 				OutProps.SourceController = SourcePawn->GetController();
@@ -67,6 +67,8 @@ void UBC_WarriorAttributeSet::PreAttributeChange(const FGameplayAttribute& Attri
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
+	NewValue = FMath::CeilToInt(NewValue);
+	
 	if (Attribute == GetHealthAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
@@ -85,6 +87,8 @@ void UBC_WarriorAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMod
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
 
+	Data.EvaluatedData.Magnitude = FMath::CeilToInt(Data.EvaluatedData.Magnitude);
+	
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));

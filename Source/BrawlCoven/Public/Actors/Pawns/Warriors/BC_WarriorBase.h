@@ -25,9 +25,12 @@ class BRAWLCOVEN_API ABC_WarriorBase : public APawn, public	IAbilitySystemInterf
 	GENERATED_BODY()
 
 public:
+	//GAS
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const;
-
+	template<class T>
+	T* GetAttributeSet() const;
+	
 	ABC_WarriorBase();
 	
 	virtual void PossessedBy(AController* NewController) override;
@@ -36,7 +39,7 @@ public:
 	FORCEINLINE
 	FName GetWarriorName() const {return WarriorDataAsset->WarriorName;}
 
-	float GetSpeed() const;
+	float GetActionSpeed() const;
 	bool IsAlive() const;
 	
 protected:
@@ -44,7 +47,6 @@ protected:
 	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
 	UPROPERTY()
 	TObjectPtr<UCombatComponent> CombatComponent;
-
 
 	void InitializeDefaultAttributes() const;
 	void InitializePrimaryAttributes() const;

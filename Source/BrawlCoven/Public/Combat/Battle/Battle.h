@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Actors/Pawns/Warriors/BC_WarriorBase.h"
 #include "UObject/NoExportTypes.h"
 #include "Battle.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWarriorEndTurn, float, SubtractionValue);
 
 class UFieldCard;
 class ABC_BattlePlayerController;
@@ -45,18 +48,11 @@ public:
 	UFUNCTION()
 	void SetReadyForNextTurn();
 
+	FOnWarriorEndTurn OnWarriorEndTurn;
 private:
 	
 	//BattleInfo
 	bool bReadyForNextTurn = true;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float NextTurnDistance = 100.f;
-	UPROPERTY()
-	TMap<TObjectPtr<ABC_WarriorBase>, float> WarriorCycleDistances;
-	UPROPERTY()
-	TArray<TSubclassOf<UFieldCard>> FieldCardClasses;
-	//UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-	
 	
 	//PlayerControllers
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -65,19 +61,15 @@ private:
 	TObjectPtr<ABC_BattlePlayerController> Player2;
 
 	//BattlePositions
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Battle Properies")
-	TObjectPtr<ABattlePosition> BattlePosition1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Battle Properies")
-	TObjectPtr<ABattlePosition> BattlePosition2;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Battle|Properies")
+	TArray<ABattlePosition*> Player1BattlePositions;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Battle|Properies")
+	TArray<ABattlePosition*> Player2BattlePositions;
 
 	//Warriors
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<ABC_WarriorBase> Warrior1;
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<ABC_WarriorBase> Warrior2;
 	UPROPERTY()
-	TObjectPtr<ABC_WarriorBase> PreviousWarrior;
-
+	TArray<TObjectPtr<ABC_WarriorBase>> AliveWarriors;
 
 	TObjectPtr<ABC_WarriorBase> GetNextTurnWarrior();
+	void SpawnWarriors(ABC_BattlePlayerController* PlayerController, TArray<ABattlePosition*> BattlePositions);
 };

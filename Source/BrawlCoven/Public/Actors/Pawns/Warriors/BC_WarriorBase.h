@@ -25,13 +25,18 @@ class BRAWLCOVEN_API ABC_WarriorBase : public APawn, public	IAbilitySystemInterf
 	GENERATED_BODY()
 
 public:
+	ABC_WarriorBase();
+	
 	//GAS
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GAS")
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GAS")
 	UAttributeSet* GetAttributeSet() const;
 	template<class T>
 	T* GetAttributeSet() const;
 	
-	ABC_WarriorBase();
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	const UWarriorDataAsset* GetWarriorDataAsset() const {return WarriorDataAsset; };
 	
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;

@@ -64,6 +64,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Replicated = OnRep_Health, Category = "Vital Stats")
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UBC_WarriorAttributeSet, Health)
+	UPROPERTY(BlueprintReadOnly, Replicated = OnRep_UltimateEnergy, Category = "Vital Stats")
+	FGameplayAttributeData UltimateEnergy;
+	ATTRIBUTE_ACCESSORS(UBC_WarriorAttributeSet, UltimateEnergy)
 	// End Vital Attributes
 
 	//Begin Primary Attributes
@@ -100,6 +103,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Replicated = OnRep_MaxHealth, Category = "Secondary Stats")
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UBC_WarriorAttributeSet, MaxHealth)
+	UPROPERTY(BlueprintReadOnly, Replicated = OnRep_MaxUltimateEnergy, Category = "Secondary Stats")
+	FGameplayAttributeData MaxUltimateEnergy;
+	ATTRIBUTE_ACCESSORS(UBC_WarriorAttributeSet, MaxUltimateEnergy)
 	//End Secondary Attributes
 
 	//Begin Meta Attributes
@@ -110,6 +116,10 @@ public:
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;
 	UFUNCTION()
 	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) const;
+	UFUNCTION()
+	void OnRep_UltimateEnergy(const FGameplayAttributeData& OldUltimateEnergy) const;
+	UFUNCTION()
+	void OnRep_MaxUltimateEnergy(const FGameplayAttributeData& OldMaxUltimateEnergy) const;
 	UFUNCTION()
 	void OnRep_Speed(const FGameplayAttributeData& OldSpeed) const;
 	UFUNCTION()

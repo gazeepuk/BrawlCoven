@@ -16,13 +16,16 @@ void FBC_GameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Attributes_Primary_Vigor = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Vigor"), "Increase Health");
 
 	//Secondary Attributes
+	GameplayTags.Attributes_Secondary_MaxHealth = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.MaxHealth"), "Warrior Max Health");
+	GameplayTags.Attributes_Secondary_MaxUltimateEnergy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.MaxUltimateEnergy"), "Warrior Max UltimateEnergy");
 	GameplayTags.Attributes_Secondary_Armor = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Armor"), "Decrease taking damage");
 	GameplayTags.Attributes_Secondary_ArmorPenetration = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.ArmorPenetration"), "Increase armor break damage");
 	GameplayTags.Attributes_Secondary_CritDmg = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.CritDmg"), "Increase Critical Damage");
 	GameplayTags.Attributes_Secondary_CritRate = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.CritRate"), "Increase Critical Damage Rate");
-
+	
 	//Vital Attributes
-	GameplayTags.Attributes_Secondary_CritDmg = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Vital.Health"), "Warrior Health");
+	GameplayTags.Attributes_Vital_Health = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Vital.Health"), "Warrior Health");
+	GameplayTags.Attributes_Vital_UltimateEnergy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Vital.UltimateEnergy"), "Warrior Health");
 
 	//Elements
 	GameplayTags.Elements_Destruction = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Elements.Destruction"), "Units of this type have high damage, but low survival");

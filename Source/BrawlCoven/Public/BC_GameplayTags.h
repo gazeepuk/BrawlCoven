@@ -24,12 +24,15 @@ public:
 	FGameplayTag Attributes_Primary_Strength;
 	FGameplayTag Attributes_Primary_Vigor;
 	// Attributes Secondary
+	FGameplayTag Attributes_Secondary_MaxHealth;
+	FGameplayTag Attributes_Secondary_MaxUltimateEnergy;
 	FGameplayTag Attributes_Secondary_Armor;
 	FGameplayTag Attributes_Secondary_ArmorPenetration;
 	FGameplayTag Attributes_Secondary_CritDmg;
 	FGameplayTag Attributes_Secondary_CritRate;
 	// Attributes Vital
 	FGameplayTag Attributes_Vital_Health;
+	FGameplayTag Attributes_Vital_UltimateEnergy;
 	// Elements
 	FGameplayTag Elements_Destruction;
 	FGameplayTag Elements_Erosion;

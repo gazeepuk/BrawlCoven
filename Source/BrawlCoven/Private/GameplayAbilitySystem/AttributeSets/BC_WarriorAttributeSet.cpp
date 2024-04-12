@@ -129,6 +129,16 @@ void UBC_WarriorAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldM
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBC_WarriorAttributeSet, MaxHealth, OldMaxHealth);
 }
 
+void UBC_WarriorAttributeSet::OnRep_UltimateEnergy(const FGameplayAttributeData& OldUltimateEnergy) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBC_WarriorAttributeSet, MaxHealth, OldUltimateEnergy);
+}
+
+void UBC_WarriorAttributeSet::OnRep_MaxUltimateEnergy(const FGameplayAttributeData& OldMaxUltimateEnergy) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBC_WarriorAttributeSet, MaxHealth, OldMaxUltimateEnergy);
+}
+
 void UBC_WarriorAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBC_WarriorAttributeSet, Speed, OldSpeed);

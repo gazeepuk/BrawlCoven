@@ -6,7 +6,7 @@
 #include "AttributeSet.h"
 #include "UObject/NoExportTypes.h"
 #include "BC_UserWidgetController.generated.h"
-
+DECLARE_LOG_CATEGORY_CLASS(LogWidgetController, All, All);
 
 class UAttributeSet;
 class UAbilitySystemComponent;
@@ -38,8 +38,9 @@ class BRAWLCOVEN_API UBC_UserWidgetController : public UObject
 public:
 	
 	UFUNCTION(BlueprintCallable)
-	void SetWidgetControllerParams(const FWidgetControllerParams& InWidgetControllerParams);
-
+	virtual void SetWidgetControllerParams(const FWidgetControllerParams& InWidgetControllerParams);
+	UFUNCTION(BlueprintCallable)
+	virtual void BroadcastInitialValues() {}
 protected:
 
 	UPROPERTY(BlueprintReadOnly)

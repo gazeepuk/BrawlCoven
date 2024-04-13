@@ -9,15 +9,14 @@ FBC_GameplayTags FBC_GameplayTags::GameplayTags;
 void FBC_GameplayTags::InitializeNativeGameplayTags()
 {
 	//Primary Attributes
-	GameplayTags.Attributes_Primary_Intelligence = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Intelligence"), "Increase Magic dealing damage");
-	GameplayTags.Attributes_Primary_Resilience = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Resilience"), "Increase protection");
+	GameplayTags.Attributes_Primary_MaxHealth = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary..MaxHealth"), "Warrior Max Health");
+	GameplayTags.Attributes_Primary_MaxUltimateEnergy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary..MaxUltimateEnergy"), "Warrior Max UltimateEnergy");
 	GameplayTags.Attributes_Primary_Speed = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Speed"), "Increase doge rate");
+	GameplayTags.Attributes_Primary_Intelligence = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Intelligence"), "Increase Magic dealing damage");
 	GameplayTags.Attributes_Primary_Strength = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Strength"), "Increase Physical dealing damage");
-	GameplayTags.Attributes_Primary_Vigor = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Vigor"), "Increase Health");
+	GameplayTags.Attributes_Primary_Resilience = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Resilience"), "Increase protection");
 
 	//Secondary Attributes
-	GameplayTags.Attributes_Secondary_MaxHealth = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.MaxHealth"), "Warrior Max Health");
-	GameplayTags.Attributes_Secondary_MaxUltimateEnergy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.MaxUltimateEnergy"), "Warrior Max UltimateEnergy");
 	GameplayTags.Attributes_Secondary_Armor = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Armor"), "Decrease taking damage");
 	GameplayTags.Attributes_Secondary_ArmorPenetration = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.ArmorPenetration"), "Increase armor break damage");
 	GameplayTags.Attributes_Secondary_CritDmg = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.CritDmg"), "Increase Critical Damage");

@@ -34,7 +34,7 @@ void UBattleKitComponent::BeginPlay()
 	}
 	//TODO: Get FBattleKit struct from DB
 	const FString OwnerName = GetOwner()->GetName() + (GetOwner()->HasAuthority() ? " Server" : " Client");
-	GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Red, OwnerName);
+	//GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Red, OwnerName);
 	checkf(TemporaryTestKit.IsValid(), TEXT("BattleKit is Invalid"));
 	
 	WarriorClasses = TemporaryTestKit.WarriorClasses;

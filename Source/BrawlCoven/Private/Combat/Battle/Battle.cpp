@@ -8,14 +8,18 @@
 #include "PlayerControllers/BC_BattlePlayerController.h"
 
 
-void UBattle::InitBattle(const FBattleInitInfo& BattleInitInfo)
-{	
-	Player1 = BattleInitInfo.Player1;
-	Player2 = BattleInitInfo.Player2;
+ABattle::ABattle()
+{
+	bReplicates = true;
+}
 
+void ABattle::InitBattle(ABC_BattlePlayerController* PlayerController1, ABC_BattlePlayerController* PlayerController2)
+{
+	Player1 = PlayerController1;
+	Player2 = PlayerController2;
 	//Spawning Warriors
-	SpawnWarriors(Player1, Player1BattlePositions);
-	SpawnWarriors(Player2, Player2BattlePositions);
+	SpawnWarriors_Server(Player1, Player1BattlePositions);
+	SpawnWarriors_Server(Player2, Player2BattlePositions);
 
 	//Sort Warriors by ActionSpeed
 	AliveWarriors.Sort([](const TObjectPtr<ABC_WarriorBase>& Warrior1, const TObjectPtr<ABC_WarriorBase>& Warrior2)
@@ -25,16 +29,71 @@ void UBattle::InitBattle(const FBattleInitInfo& BattleInitInfo)
 
 	//Subtracting first warrior action speed  
 	const float FirstWarriorActionSpeed = AliveWarriors[0]->GetActionSpeed();
-	
+
 	for (auto It = AliveWarriors.CreateConstIterator(); It; ++It)
 	{
 		It->Get()->GetComponentByClass<UCombatComponent>()->DecreaseActionSpeed(FirstWarriorActionSpeed);
 	}
 
-	StartTurn();
+	StartTurn_Client();
 }
 
-void UBattle::StartTurn()
+bool ABattle::SpawnWarriors_Server_Validate(ABC_BattlePlayerController* PlayerController,
+                                            const TArray<TSoftObjectPtr<ABattlePosition>>& BattlePositions)
+{
+	//Validation checking
+	const TArray<TSubclassOf<ABC_WarriorBase>>& WarriorClasses = PlayerController->GetPlayerWarriorClasses();
+
+	const bool bBattlePositionsValid = BattlePositions.Num() > 0 && BattlePositions.Num() < 4;
+	const bool bWarriorClassesValid = WarriorClasses.Num() > 0 && WarriorClasses.Num() <= BattlePositions.Num();
+
+	return bBattlePositionsValid && bWarriorClassesValid;
+}
+
+
+void ABattle::SpawnWarriors_Server_Implementation(ABC_BattlePlayerController* PlayerController,
+                                                  const TArray<TSoftObjectPtr<ABattlePosition>>& BattlePositions)
+{
+	const TArray<TSubclassOf<ABC_WarriorBase>>& WarriorClasses = PlayerController->GetPlayerWarriorClasses();
+
+	TArray<ABattlePosition*> HardBattlePositions;
+
+	for (TSoftObjectPtr<ABattlePosition> BattlePosition : BattlePositions)
+	{
+		if (BattlePosition.Get())
+		{
+			HardBattlePositions.Add(BattlePosition.Get());
+		}
+	}
+
+	SpawnWarriors_Client(WarriorClasses, HardBattlePositions, PlayerController);
+}
+
+void ABattle::SpawnWarriors_Client_Implementation(const TArray<TSubclassOf<ABC_WarriorBase>>& WarriorClasses,
+                                                  const TArray<ABattlePosition*>& BattlePositions,
+                                                  ABC_BattlePlayerController* OwningPlayerController)
+{
+	for (uint8 i = 0; i < WarriorClasses.Num(); i++)
+	{
+		ABC_WarriorBase* WarriorToSpawn = GetWorld()->SpawnActorDeferred<ABC_WarriorBase>(
+			WarriorClasses[i], FTransform::Identity, OwningPlayerController);
+		FTransform WarriorTransform = BattlePositions[i]->GetActorTransform();
+		WarriorTransform.SetScale3D(FVector::One());
+		
+		UCombatComponent* CombatComponent = WarriorToSpawn->GetComponentByClass<UCombatComponent>();
+		check(CombatComponent);
+		OnWarriorEndTurn.AddUniqueDynamic(CombatComponent, &UCombatComponent::DecreaseActionSpeed);
+		CombatComponent->OnTurnEnded.AddUniqueDynamic(this, &ABattle::SetReadyForNextTurn);
+		
+		WarriorToSpawn->FinishSpawning(WarriorTransform);
+
+		AliveWarriors.Add(WarriorToSpawn);
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, "SpawnWarriors_Client");
+}
+
+void ABattle::StartTurn_Client_Implementation()
 {
 	if (!IsReadyForNextTurn())
 	{
@@ -46,19 +105,18 @@ void UBattle::StartTurn()
 
 	UCombatComponent* CombatComponent = ActiveWarrior->GetComponentByClass<UCombatComponent>();
 	check(CombatComponent);
-	OnWarriorEndTurn.AddDynamic(CombatComponent, &UCombatComponent::DecreaseActionSpeed);
 
 	CombatComponent->StartWarriorTurn();
-	CombatComponent->OnTurnEnded.AddUniqueDynamic(this, &UBattle::SetReadyForNextTurn);
 }
 
-bool UBattle::IsReadyForNextTurn() const
+
+bool ABattle::IsReadyForNextTurn() const
 {
 	//Check if Player1 is Alive
 	const bool bPlayer1Alive = AliveWarriors.ContainsByPredicate([&](const ABC_WarriorBase* Warrior)
 	{
 		ABC_BattlePlayerController* OwningPlayer = Warrior->GetOwner<ABC_BattlePlayerController>();
-		if(Player1 == OwningPlayer)
+		if (Player1 == OwningPlayer)
 		{
 			return Warrior->IsAlive();
 		}
@@ -69,17 +127,17 @@ bool UBattle::IsReadyForNextTurn() const
 	const bool bPlayer2Alive = AliveWarriors.ContainsByPredicate([&](const ABC_WarriorBase* Warrior)
 	{
 		ABC_BattlePlayerController* OwningPlayer = Warrior->GetOwner<ABC_BattlePlayerController>();
-		if(Player2 == OwningPlayer)
+		if (Player2 == OwningPlayer)
 		{
 			return Warrior->IsAlive();
 		}
 		return false;
 	});
-	
+
 	return bPlayer1Alive && bPlayer2Alive;
 }
 
-void UBattle::SetReadyForNextTurn()
+void ABattle::SetReadyForNextTurn()
 {
 	bReadyForNextTurn = true;
 
@@ -88,43 +146,22 @@ void UBattle::SetReadyForNextTurn()
 		//Subtract Next Warrior ActionSpeed from each Alive Warrior
 		const float SubstructionValue = AliveWarriors[1]->GetActionSpeed();
 		OnWarriorEndTurn.Broadcast(SubstructionValue);
-		
-		StartTurn();
+
+		StartTurn_Client();
 	}
 }
 
-TObjectPtr<ABC_WarriorBase> UBattle::GetNextTurnWarrior()
+TObjectPtr<ABC_WarriorBase> ABattle::GetNextTurnWarrior()
 {
-	if(AliveWarriors.Num() == 0)
+	if (AliveWarriors.Num() == 0)
 	{
 		return nullptr;
 	}
-	
+
 	AliveWarriors.Sort([](const TObjectPtr<ABC_WarriorBase>& Warrior1, const TObjectPtr<ABC_WarriorBase>& Warrior2)
 	{
 		return Warrior1->GetActionSpeed() < Warrior2->GetActionSpeed();
 	});
-	
-	return AliveWarriors[0];
-}
 
-void UBattle::SpawnWarriors(ABC_BattlePlayerController* PlayerController, TArray<ABattlePosition*> BattlePositions)
-{
-	const TArray<TSubclassOf<ABC_WarriorBase>>& WarriorClasses = PlayerController->GetPlayerWarriorClasses();
-
-	//validation checking
-	checkf(WarriorClasses.Num() > 0 && WarriorClasses.Num() > 4,TEXT("Player [%s] Warrior Classes length is [%n]"), *PlayerController->GetName(),PlayerController->GetPlayerWarriorClasses().Num())
-	checkf(BattlePositions.Num() >0 && BattlePositions.Num() < 4,TEXT("BattlePositions[%s].Num[%n] is invalid"), *PlayerController->GetName(), BattlePositions.Num());
-	
-	for (uint8 i = 0; i < WarriorClasses.Num(); i++)
-	{
-		ABC_WarriorBase* WarriorToSpawn = GetWorld()->SpawnActorDeferred<ABC_WarriorBase>(WarriorClasses[i], FTransform::Identity, PlayerController);
-
-		UCombatComponent* CombatComponent = WarriorToSpawn->GetComponentByClass<UCombatComponent>();
-		OnWarriorEndTurn.AddUniqueDynamic(CombatComponent, &UCombatComponent::DecreaseActionSpeed);
-		
-		AliveWarriors.Add(WarriorToSpawn);
-		
-		WarriorToSpawn->FinishSpawning(BattlePositions[i]->GetActorTransform());
-	}
+	return AliveWarriors.Last();
 }

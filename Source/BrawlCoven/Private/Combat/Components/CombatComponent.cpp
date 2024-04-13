@@ -9,7 +9,6 @@
 UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	SetIsReplicated(true);
 }
 
 void UCombatComponent::BeginPlay()
@@ -21,7 +20,8 @@ void UCombatComponent::BeginPlay()
 	BC_AttributeSet = CastChecked<UBC_WarriorAttributeSet>(WarriorOwner->GetAttributeSet());
 
 	ActionSpeed = InitActionSpeed = BC_AttributeSet->GetSpeed();
-	checkf(ActionSpeed > 0, TEXT("AttributeSet Speed <= 0"))
+
+	//TODO: uncomment checkf(ActionSpeed > 0, TEXT("AttributeSet Speed <= 0"))
 }
 
 void UCombatComponent::DecreaseActionSpeed(float InSubtractionValue)

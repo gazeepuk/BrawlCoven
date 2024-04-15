@@ -67,6 +67,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Replicated = OnRep_UltimateEnergy, Category = "Vital Stats")
 	FGameplayAttributeData UltimateEnergy;
 	ATTRIBUTE_ACCESSORS(UBC_WarriorAttributeSet, UltimateEnergy)
+	UPROPERTY(BlueprintReadOnly, Replicated = OnRep_ActionSpeed, Category = "Vital Stats")
+	FGameplayAttributeData ActionSpeed;
+	ATTRIBUTE_ACCESSORS(UBC_WarriorAttributeSet, ActionSpeed)
 	// End Vital Attributes
 
 	//Begin Primary Attributes
@@ -82,9 +85,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Replicated = OnRep_Resilience, Category = "Primary Stats")
 	FGameplayAttributeData Resilience;
 	ATTRIBUTE_ACCESSORS(UBC_WarriorAttributeSet, Resilience)
-	UPROPERTY(BlueprintReadOnly, Replicated = OnRep_Vigor, Category = "Primary Stats")
-	FGameplayAttributeData Vigor;
-	ATTRIBUTE_ACCESSORS(UBC_WarriorAttributeSet, Vigor)
 	// End Primary Attributes
 
 	//Begin Secondary Attributes
@@ -123,6 +123,8 @@ public:
 	UFUNCTION()
 	void OnRep_Speed(const FGameplayAttributeData& OldSpeed) const;
 	UFUNCTION()
+	void OnRep_ActionSpeed(const FGameplayAttributeData& OldActionSpeed) const;
+	UFUNCTION()
 	void OnRep_Strength(const FGameplayAttributeData& OldStrength) const;
 	UFUNCTION()
 	void OnRep_Intelligence(const FGameplayAttributeData& OldIntelligence) const;
@@ -136,8 +138,6 @@ public:
 	void OnRep_CritRate(const FGameplayAttributeData& OldCritRate) const;
 	UFUNCTION()
 	void OnRep_CritDmg(const FGameplayAttributeData& OldCritDmg) const;
-	UFUNCTION()
-	void OnRep_Vigor(const FGameplayAttributeData& OldVigor) const;
 
 private:
 

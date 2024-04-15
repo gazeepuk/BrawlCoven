@@ -7,7 +7,6 @@
 #include "BattleKitComponent.generated.h"
 
 class UAbilityCard;
-class UFieldCard;
 class ABC_WarriorBase;
 
 USTRUCT(Blueprintable)
@@ -17,8 +16,6 @@ struct FBattleKitInfo
 	bool IsValid() const;
 	UPROPERTY(EditAnywhere)
 	TArray<TSubclassOf<ABC_WarriorBase>> WarriorClasses;
-	UPROPERTY(EditAnywhere)
-	TArray<TSubclassOf<UFieldCard>> FieldCardClasses;
 	UPROPERTY(EditAnywhere)
 	TArray<TSubclassOf<UAbilityCard>> AbilityCardClasses;
 };
@@ -34,7 +31,8 @@ public:
 
 	void AddWarrior(const TObjectPtr<ABC_WarriorBase>& InWarrior);
 	FORCEINLINE FBattleKitInfo GetBattleKitInfo() {return TemporaryTestKit;}
-	
+	bool HasAliveWarrior() const;
+	const TArray<ABC_WarriorBase*>& GetWarriors(){return Warriors;};
 protected:
 	
 	virtual void BeginPlay() override;
@@ -42,7 +40,6 @@ protected:
 	TArray<TSubclassOf<ABC_WarriorBase>> WarriorClasses;
 	TArray<TObjectPtr<ABC_WarriorBase>> Warriors;
 	
-	TArray<TObjectPtr<UFieldCard>> FieldCards;
 	TArray<TObjectPtr<UAbilityCard>> AbilityCards;
 private:
 	UPROPERTY(EditAnywhere)

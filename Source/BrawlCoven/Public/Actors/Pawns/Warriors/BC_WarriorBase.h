@@ -48,16 +48,23 @@ public:
 	bool IsAlive() const;
 	
 protected:
+	virtual void BeginPlay() override;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCombatComponent> CombatComponent;
-
+	
 	void InitializeDefaultAttributes() const;
+	
 	void InitializePrimaryAttributes() const;
 	void InitializeSecondaryAttributes() const;
+	void InitializeVitalAttributes() const;
 
 	void AddWarriorAbilities() const;
+
+	void ApplyEffectSpecToSelf(const TSubclassOf<UGameplayEffect>& AttributeClass, float Level = 1) const;
+	UFUNCTION()
+	void OnDeath();
 private:
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
@@ -66,9 +73,10 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	const UWarriorDataAsset* WarriorDataAsset;
+
+	UFUNCTION(Reliable, Server)
+	void InitAbilityActorInfo_Server();
+	UFUNCTION(Reliable, Client)
+	void InitAbilityActorInfo_Client();
 	
-	void InitAbilityActorInfo();
-	void ApplyEffectSpecToSelf(const TSubclassOf<UGameplayEffect>& AttributeClass, float Level = 1) const;
-	UFUNCTION()
-	void OnDeath();
 };

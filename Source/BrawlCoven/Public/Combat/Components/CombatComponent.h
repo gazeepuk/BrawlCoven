@@ -6,6 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+class UBC_AbilitySystemComponent;
+class ABC_WarriorBase;
+class UGameplayEffect;
 class UBC_WarriorAttributeSet;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTurnEndedDelegate);
 
@@ -17,20 +20,22 @@ class BRAWLCOVEN_API UCombatComponent : public UActorComponent
 public:
 	UCombatComponent();
 	void StartWarriorTurn();
-	void EndWarriorTurn();
+	void EndWarriorTurn() const;
 	UFUNCTION()
 	void DecreaseActionSpeed(float InSubtractionValue);
-	FORCEINLINE float GetActionSpeed() const { return ActionSpeed; }
-
+	UFUNCTION()
+	void SetDefaultActionSpeed() const;
+	void SetProperties(UBC_AbilitySystemComponent* InASC, UBC_WarriorAttributeSet* InAS, ABC_WarriorBase* InWarriorOwner);
 	FTurnEndedDelegate OnTurnEnded;
 
 protected:
-	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UBC_WarriorAttributeSet> BC_AttributeSet;
-
-private:
-	float InitActionSpeed;
-	float ActionSpeed;
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UBC_AbilitySystemComponent> BC_AbilitySystemComponent;
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<ABC_WarriorBase> WarriorOwner;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayEffect> SetActionSpeedAttributeEffectClass;
 };

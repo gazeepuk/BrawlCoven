@@ -16,10 +16,10 @@ ABC_BattleGameModeBase::ABC_BattleGameModeBase()
 {
 	PlayerStateClass = ABC_BattlePlayerState::StaticClass();
 	PlayerControllerClass = ABC_BattlePlayerController::StaticClass();
-	AbilitySystemComponent = CreateDefaultSubobject<UBC_AbilitySystemComponent>("AbilitySystemComponent");
+	/*AbilitySystemComponent = CreateDefaultSubobject<UBC_AbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full);
-	AttributeSet = CreateDefaultSubobject<UBC_WarriorAttributeSet>("AttributeSet");
+	AttributeSet = CreateDefaultSubobject<UBC_WarriorAttributeSet>("AttributeSet");*/
 }
 
 void ABC_BattleGameModeBase::BeginPlay()
@@ -27,12 +27,12 @@ void ABC_BattleGameModeBase::BeginPlay()
 	Super::BeginPlay();
 
 	
-	check(InitStatsGameplayEffectClass);
+	/*check(InitStatsGameplayEffectClass);
 	
 	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
 	ContextHandle.AddSourceObject(this);
 	const FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(InitStatsGameplayEffectClass, 1, ContextHandle);
-	AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*EffectSpecHandle.Data.Get(), AbilitySystemComponent);
+	AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*EffectSpecHandle.Data.Get(), AbilitySystemComponent);*/
 }
 
 void ABC_BattleGameModeBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

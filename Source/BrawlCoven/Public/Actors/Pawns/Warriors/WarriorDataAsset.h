@@ -43,9 +43,9 @@ public:
 	TSubclassOf<UBC_GameplayAbility> UltimateAbility;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UGameplayEffect> PrimaryAttributes;
+	TSubclassOf<UGameplayEffect> PrimaryAttributesEffect;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UGameplayEffect> SecondaryAttributes;
+	TSubclassOf<UGameplayEffect> SecondaryAttributesEffect;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UGameplayEffect> VitalAttributes;
+	TSubclassOf<UGameplayEffect> VitalAttributesEffect;
 };

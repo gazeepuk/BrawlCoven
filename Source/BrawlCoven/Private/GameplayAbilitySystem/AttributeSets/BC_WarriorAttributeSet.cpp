@@ -14,9 +14,10 @@ void UBC_WarriorAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 
 	//Vital
 	DOREPLIFETIME_CONDITION_NOTIFY(UBC_WarriorAttributeSet, Health, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBC_WarriorAttributeSet, UltimateEnergy, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBC_WarriorAttributeSet, ActionSpeed, COND_None, REPNOTIFY_Always);
 
 	//Primary
-	DOREPLIFETIME_CONDITION_NOTIFY(UBC_WarriorAttributeSet, Vigor, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBC_WarriorAttributeSet, Speed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBC_WarriorAttributeSet, Strength, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBC_WarriorAttributeSet, Intelligence, COND_None, REPNOTIFY_Always);
@@ -28,6 +29,7 @@ void UBC_WarriorAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME_CONDITION_NOTIFY(UBC_WarriorAttributeSet, CritRate, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBC_WarriorAttributeSet, CritDmg, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBC_WarriorAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBC_WarriorAttributeSet, MaxUltimateEnergy, COND_None, REPNOTIFY_Always);
 }
 
 void UBC_WarriorAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& OutProps) const
@@ -118,7 +120,7 @@ void UBC_WarriorAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMod
 		}
 	}
 }
-
+#pragma region OnRep_Functions 
 void UBC_WarriorAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBC_WarriorAttributeSet, Health, OldHealth);
@@ -142,6 +144,11 @@ void UBC_WarriorAttributeSet::OnRep_MaxUltimateEnergy(const FGameplayAttributeDa
 void UBC_WarriorAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBC_WarriorAttributeSet, Speed, OldSpeed);
+}
+
+void UBC_WarriorAttributeSet::OnRep_ActionSpeed(const FGameplayAttributeData& OldActionSpeed) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBC_WarriorAttributeSet, ActionSpeed, OldActionSpeed);
 }
 
 void UBC_WarriorAttributeSet::OnRep_Strength(const FGameplayAttributeData& OldStrength) const
@@ -178,8 +185,4 @@ void UBC_WarriorAttributeSet::OnRep_CritDmg(const FGameplayAttributeData& OldCri
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBC_WarriorAttributeSet, CritDmg, OldCritDmg);
 }
-
-void UBC_WarriorAttributeSet::OnRep_Vigor(const FGameplayAttributeData& OldVigor) const
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UBC_WarriorAttributeSet, Vigor, OldVigor);
-}
+#pragma endregion

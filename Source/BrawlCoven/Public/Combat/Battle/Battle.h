@@ -27,7 +27,8 @@ public:
 
 	UFUNCTION(Reliable, Client)
 	void StartTurn_Client();
-	
+
+	UFUNCTION()
 	bool IsReadyForNextTurn() const;
 
 	UFUNCTION()

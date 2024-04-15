@@ -25,6 +25,7 @@ void FBC_GameplayTags::InitializeNativeGameplayTags()
 	//Vital Attributes
 	GameplayTags.Attributes_Vital_Health = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Vital.Health"), "Warrior Health");
 	GameplayTags.Attributes_Vital_UltimateEnergy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Vital.UltimateEnergy"), "Warrior Health");
+	GameplayTags.Attributes_Vital_ActionSpeed = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Vital.ActionSpeed"), "Value to start Warrior's turn");
 
 	//Elements
 	GameplayTags.Elements_Destruction = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Elements.Destruction"), "Units of this type have high damage, but low survival");

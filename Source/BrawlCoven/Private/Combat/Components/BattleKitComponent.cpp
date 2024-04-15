@@ -4,12 +4,11 @@
 #include "Combat/Components/BattleKitComponent.h"
 #include "Actors/Pawns/Warriors/BC_WarriorBase.h"
 #include "GameCards/AbilityCard.h"
-#include "GameCards/FieldCard.h"
 
 
 bool FBattleKitInfo::IsValid() const
 {
-	return WarriorClasses.Num() > 0 && WarriorClasses.Num() <=3 && FieldCardClasses.Num() > 0 && FieldCardClasses.Num() <=3;
+	return WarriorClasses.Num() > 0 && WarriorClasses.Num() <=3 && AbilityCardClasses.Num() <=30;
 }
 
 UBattleKitComponent::UBattleKitComponent()
@@ -24,6 +23,16 @@ void UBattleKitComponent::AddWarrior(const TObjectPtr<ABC_WarriorBase>& InWarrio
 	Warriors.AddUnique(InWarrior);
 }
 
+bool UBattleKitComponent::HasAliveWarrior() const
+{
+
+	return Warriors.ContainsByPredicate([](const TObjectPtr<ABC_WarriorBase>& InWarrior)
+	{
+		return InWarrior->IsAlive();
+	});
+
+}
+
 void UBattleKitComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -34,17 +43,10 @@ void UBattleKitComponent::BeginPlay()
 	}
 	//TODO: Get FBattleKit struct from DB
 	const FString OwnerName = GetOwner()->GetName() + (GetOwner()->HasAuthority() ? " Server" : " Client");
-	//GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Red, OwnerName);
+
 	checkf(TemporaryTestKit.IsValid(), TEXT("BattleKit is Invalid"));
 	
 	WarriorClasses = TemporaryTestKit.WarriorClasses;
-	
-	//Create FieldCards
-	for (const TSubclassOf<UFieldCard>& FieldCardClass : TemporaryTestKit.FieldCardClasses)
-	{
-		TObjectPtr<UFieldCard> FieldCard = NewObject<UFieldCard>(this, FieldCardClass);
-		FieldCards.Add(FieldCard);
-	}
 
 	//Create AbilityCards
 	for (const TSubclassOf<UAbilityCard>& AbilityCardClass : TemporaryTestKit.AbilityCardClasses)

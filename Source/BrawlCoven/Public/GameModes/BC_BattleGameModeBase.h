@@ -29,12 +29,12 @@ protected:
 	virtual void BeginPlay() override;
 
 	//GameplayAbilitySystem
-	UPROPERTY(BlueprintReadOnly, Category = "GAS")
+	/*UPROPERTY(BlueprintReadOnly, Category = "GAS")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 	UPROPERTY(BlueprintReadOnly, Category = "GAS")
 	TObjectPtr<UBC_WarriorAttributeSet> AttributeSet;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS")
-	TSubclassOf<UGameplayEffect> InitStatsGameplayEffectClass;
+	TSubclassOf<UGameplayEffect> InitStatsGameplayEffectClass;*/
 
 	//Battle
 	UPROPERTY(BlueprintReadWrite, Category = "Battle", Replicated = OnRep_ActiveBattle)

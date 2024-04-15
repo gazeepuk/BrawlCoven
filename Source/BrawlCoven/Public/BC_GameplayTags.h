@@ -33,6 +33,7 @@ public:
 	// Attributes Vital
 	FGameplayTag Attributes_Vital_Health;
 	FGameplayTag Attributes_Vital_UltimateEnergy;
+	FGameplayTag Attributes_Vital_ActionSpeed;
 	// Elements
 	FGameplayTag Elements_Destruction;
 	FGameplayTag Elements_Erosion;

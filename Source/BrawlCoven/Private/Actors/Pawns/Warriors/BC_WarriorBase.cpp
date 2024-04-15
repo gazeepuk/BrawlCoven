@@ -26,6 +26,7 @@ ABC_WarriorBase::ABC_WarriorBase()
 	Cast<UBC_WarriorAttributeSet>(AttributeSet)->OnEmptyHealth.AddDynamic(this, &ThisClass::OnDeath);
 	//Battle Components
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
+	CombatComponent->SetProperties(Cast<UBC_AbilitySystemComponent>(AbilitySystemComponent), Cast<UBC_WarriorAttributeSet>(AttributeSet), this);
 }
 
 UAbilitySystemComponent* ABC_WarriorBase::GetAbilitySystemComponent() const
@@ -38,6 +39,7 @@ UAttributeSet* ABC_WarriorBase::GetAttributeSet() const
 	return AttributeSet;
 }
 
+
 template <class T>
 T* ABC_WarriorBase::GetAttributeSet() const
 {
@@ -46,7 +48,7 @@ T* ABC_WarriorBase::GetAttributeSet() const
 
 float ABC_WarriorBase::GetActionSpeed() const
 {
-	return CombatComponent->GetActionSpeed();;
+	return GetAttributeSet<UBC_WarriorAttributeSet>()->GetActionSpeed();
 }
 
 bool ABC_WarriorBase::IsAlive() const
@@ -55,21 +57,37 @@ bool ABC_WarriorBase::IsAlive() const
 	return WarriorAttributeSet->GetHealth() > 0;
 }
 
+void ABC_WarriorBase::BeginPlay()
+{
+	Super::BeginPlay();
+	InitAbilityActorInfo_Server();
+}
+
+#pragma region Initializing Attributes 
 void ABC_WarriorBase::InitializeDefaultAttributes() const
 {
 	InitializePrimaryAttributes();
 	InitializeSecondaryAttributes();
+	InitializeVitalAttributes();
 }
 
 void ABC_WarriorBase::InitializePrimaryAttributes() const
 {
-	ApplyEffectSpecToSelf(WarriorDataAsset->PrimaryAttributes);
+	ApplyEffectSpecToSelf(WarriorDataAsset->PrimaryAttributesEffect);
 }
 
 void ABC_WarriorBase::InitializeSecondaryAttributes() const
 {
-	ApplyEffectSpecToSelf(WarriorDataAsset->SecondaryAttributes);
+	ApplyEffectSpecToSelf(WarriorDataAsset->SecondaryAttributesEffect);
 }
+
+void ABC_WarriorBase::InitializeVitalAttributes() const
+{
+	ApplyEffectSpecToSelf(WarriorDataAsset->VitalAttributesEffect);
+	CombatComponent->SetDefaultActionSpeed();
+}
+
+#pragma endregion
 
 void ABC_WarriorBase::AddWarriorAbilities() const
 {
@@ -87,10 +105,10 @@ void ABC_WarriorBase::AddWarriorAbilities() const
 }
 
 
-void ABC_WarriorBase::InitAbilityActorInfo()
+void ABC_WarriorBase::InitAbilityActorInfo_Client_Implementation()
 {
-	AddWarriorAbilities();
 
+	AddWarriorAbilities();
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 
 
@@ -101,13 +119,14 @@ void ABC_WarriorBase::InitAbilityActorInfo()
 	}
 
 	InitializeDefaultAttributes();
+}
 
-	ABC_BattlePlayerState* BC_PlayerState = GetPlayerState<ABC_BattlePlayerState>();
-	check(BC_PlayerState);
+void ABC_WarriorBase::InitAbilityActorInfo_Server_Implementation()
+{
 
+	InitAbilityActorInfo_Client_Implementation();
 	/*APlayerController* PlayerController = GetController<APlayerController>();
 	if(PlayerController)
-	{
 		ABC_HUD* HUD = PlayerController->GetHUD<ABC_HUD>();
 		if(!HUD)
 		{
@@ -117,6 +136,7 @@ void ABC_WarriorBase::InitAbilityActorInfo()
 		HUD->InitOverlay(PlayerController, BC_PlayerState, AbilitySystemComponent, AttributeSet);
 	}*/
 }
+
 
 void ABC_WarriorBase::ApplyEffectSpecToSelf(const TSubclassOf<UGameplayEffect>& AttributeClass, const float Level) const
 {
@@ -138,8 +158,9 @@ void ABC_WarriorBase::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
+	
 	//Init actor info for the server
-	InitAbilityActorInfo();
+	//InitAbilityActorInfo();
 }
 
 void ABC_WarriorBase::OnRep_PlayerState()
@@ -147,5 +168,5 @@ void ABC_WarriorBase::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	//Init actor info for the client
-	InitAbilityActorInfo();
+	//InitAbilityActorInfo();
 }

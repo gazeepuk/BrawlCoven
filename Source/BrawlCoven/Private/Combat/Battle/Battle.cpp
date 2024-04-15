@@ -21,13 +21,18 @@ void ABattle::InitBattle(ABC_BattlePlayerController* PlayerController1, ABC_Batt
 	SpawnWarriors_Server(Player1, Player1BattlePositions);
 	SpawnWarriors_Server(Player2, Player2BattlePositions);
 
+	if (AliveWarriors.Num() == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("NO ALIVE WARRIORS: AliveWarrior.Num() == 0"));
+		return;
+	}
 	//Sort Warriors by ActionSpeed
 	AliveWarriors.Sort([](const TObjectPtr<ABC_WarriorBase>& Warrior1, const TObjectPtr<ABC_WarriorBase>& Warrior2)
 	{
 		return Warrior1->GetActionSpeed() < Warrior2->GetActionSpeed();
 	});
 
-	//Subtracting first warrior action speed  
+	//Subtracting first warrior action speed
 	const float FirstWarriorActionSpeed = AliveWarriors[0]->GetActionSpeed();
 
 	for (auto It = AliveWarriors.CreateConstIterator(); It; ++It)
@@ -79,24 +84,27 @@ void ABattle::SpawnWarriors_Client_Implementation(const TArray<TSubclassOf<ABC_W
 			WarriorClasses[i], FTransform::Identity, OwningPlayerController);
 		FTransform WarriorTransform = BattlePositions[i]->GetActorTransform();
 		WarriorTransform.SetScale3D(FVector::One());
-		
+
 		UCombatComponent* CombatComponent = WarriorToSpawn->GetComponentByClass<UCombatComponent>();
 		check(CombatComponent);
 		OnWarriorEndTurn.AddUniqueDynamic(CombatComponent, &UCombatComponent::DecreaseActionSpeed);
 		CombatComponent->OnTurnEnded.AddUniqueDynamic(this, &ABattle::SetReadyForNextTurn);
-		
+
 		WarriorToSpawn->FinishSpawning(WarriorTransform);
 
 		AliveWarriors.Add(WarriorToSpawn);
+		OwningPlayerController->AddWarrior(WarriorToSpawn);
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, "SpawnWarriors_Client");
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, "SpawnWarriors_Client Completed");
+	StartTurn_Client();
 }
 
 void ABattle::StartTurn_Client_Implementation()
 {
 	if (!IsReadyForNextTurn())
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, "No Alive Warriors");
 		return;
 	}
 	bReadyForNextTurn = false;
@@ -107,34 +115,12 @@ void ABattle::StartTurn_Client_Implementation()
 	check(CombatComponent);
 
 	CombatComponent->StartWarriorTurn();
-}
 
+}
 
 bool ABattle::IsReadyForNextTurn() const
 {
-	//Check if Player1 is Alive
-	const bool bPlayer1Alive = AliveWarriors.ContainsByPredicate([&](const ABC_WarriorBase* Warrior)
-	{
-		ABC_BattlePlayerController* OwningPlayer = Warrior->GetOwner<ABC_BattlePlayerController>();
-		if (Player1 == OwningPlayer)
-		{
-			return Warrior->IsAlive();
-		}
-		return false;
-	});
-
-	//Check if Player2 is Alive
-	const bool bPlayer2Alive = AliveWarriors.ContainsByPredicate([&](const ABC_WarriorBase* Warrior)
-	{
-		ABC_BattlePlayerController* OwningPlayer = Warrior->GetOwner<ABC_BattlePlayerController>();
-		if (Player2 == OwningPlayer)
-		{
-			return Warrior->IsAlive();
-		}
-		return false;
-	});
-
-	return bPlayer1Alive && bPlayer2Alive;
+	return Player1->HasAliveWarrior() && Player2->HasAliveWarrior();
 }
 
 void ABattle::SetReadyForNextTurn()
@@ -163,5 +149,5 @@ TObjectPtr<ABC_WarriorBase> ABattle::GetNextTurnWarrior()
 		return Warrior1->GetActionSpeed() < Warrior2->GetActionSpeed();
 	});
 
-	return AliveWarriors.Last();
+	return AliveWarriors[0];
 }

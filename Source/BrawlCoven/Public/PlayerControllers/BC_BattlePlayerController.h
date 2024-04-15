@@ -19,12 +19,13 @@ class BRAWLCOVEN_API ABC_BattlePlayerController : public ABC_PlayerControllerBas
 
 public:
 	ABC_BattlePlayerController();
-	FORCEINLINE TArray<TSubclassOf<ABC_WarriorBase>> GetPlayerWarriorClasses() const { return BattleKitComponent->GetBattleKitInfo().WarriorClasses; }
-	void AddWarrior(const TObjectPtr<ABC_WarriorBase>& InWarrior) const;
-	
-protected:
 
+	TArray<TSubclassOf<ABC_WarriorBase>> GetPlayerWarriorClasses() const { return BattleKitComponent->GetBattleKitInfo().WarriorClasses; }
+
+	bool HasAliveWarrior() const { return BattleKitComponent->HasAliveWarrior(); }
+	void AddWarrior(const TObjectPtr<ABC_WarriorBase>& InWarrior) const;
+
+protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Battle|Components")
 	TObjectPtr<UBattleKitComponent> BattleKitComponent;
-
 };

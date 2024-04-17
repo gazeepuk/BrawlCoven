@@ -1,1 +1,0 @@
-SELECT L.LevelID FROM Level L WHERE L.Name LIKE @LevelName

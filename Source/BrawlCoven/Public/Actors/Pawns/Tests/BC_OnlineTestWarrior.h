@@ -3,9 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "OnlineSubsystem.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/OnlineSessionInterface.h"
 #include "BC_OnlineTestWarrior.generated.h"
+
 
 UCLASS()
 class BRAWLCOVEN_API ABC_OnlineTestWarrior : public ACharacter
@@ -14,12 +15,23 @@ class BRAWLCOVEN_API ABC_OnlineTestWarrior : public ACharacter
 
 public:
 	ABC_OnlineTestWarrior();
-
-protected:
-	virtual void BeginPlay() override;
-
-	IOnlineSessionPtr OnlineSessionInterface;
-public:	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable)
+	void CreateGameSession();
+	UFUNCTION(BlueprintCallable)
+	void JoinGameSession();
+protected:
+
+	TSharedPtr<IOnlineSession, ESPMode::ThreadSafe> OnlineSessionInterface;
+	TSharedPtr<FOnlineSessionSearch> SessionSearch;
+	
+	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
+	void OnFindSessionComplete(bool bWasSuccessful);
+	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+private:
+	
+	FOnCreateSessionCompleteDelegate CreateSessionCompleteDelegate;
+	FOnFindSessionsCompleteDelegate FindSessionsCompleteDelegate;
+	FOnJoinSessionCompleteDelegate JoinSessionCompleteDelegate;
 };

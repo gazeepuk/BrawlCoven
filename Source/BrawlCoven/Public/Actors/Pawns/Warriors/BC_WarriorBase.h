@@ -38,17 +38,21 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const UWarriorDataAsset* GetWarriorDataAsset() const {return WarriorDataAsset; };
 	
-	virtual void PossessedBy(AController* NewController) override;
-	virtual void OnRep_PlayerState() override;
-	
 	FORCEINLINE
 	FName GetWarriorName() const {return WarriorDataAsset->WarriorName;}
-
 	float GetActionSpeed() const;
 	bool IsAlive() const;
-	
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetPlayerIndex(int32 InPlayerIndex);
+	FORCEINLINE
+	int32 GetPlayerIndex() const {return PlayerIndex;}
+
+	UFUNCTION(Reliable, Server)
+	void Server_InitAbilityActorInfo();
+
 protected:
-	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
 	UPROPERTY(EditDefaultsOnly)
@@ -74,9 +78,6 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	const UWarriorDataAsset* WarriorDataAsset;
 
-	UFUNCTION(Reliable, Server)
-	void InitAbilityActorInfo_Server();
-	UFUNCTION(Reliable, Client)
-	void InitAbilityActorInfo_Client();
-	
+	UPROPERTY(Replicated)
+	int32 PlayerIndex;
 };

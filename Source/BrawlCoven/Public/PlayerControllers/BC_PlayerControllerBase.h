@@ -19,23 +19,17 @@ class BRAWLCOVEN_API ABC_PlayerControllerBase : public APlayerController
 	GENERATED_BODY()
 public:
 	ABC_PlayerControllerBase();
+	UFUNCTION(Server, Reliable)
+	void Server_SetControllerIndex(int32 InControllerIndex);
+	FORCEINLINE
+	int32 GetControllerIndex() const {return ControllerIndex;}
 protected:
 	virtual void BeginPlay() override;
-
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UInputMappingContext> InputContext;
 
-	virtual void SetupInputComponent() override;
-private:
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UBC_InputConfig> InputConfig;
-
-	TObjectPtr<UBC_AbilitySystemComponent> BCAbilitySystemComponent;
-	
-	void AbilityInputTagPressed(FGameplayTag InputTag);
-	void AbilityInputTagReleased(FGameplayTag InputTag);
-	void AbilityInputTagHeld(FGameplayTag InputTag);
-
-	UBC_AbilitySystemComponent* GetASC();
+	UPROPERTY(Replicated)
+	int32 ControllerIndex = -1;
 };

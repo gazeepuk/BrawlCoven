@@ -4,76 +4,135 @@
 #include "GameModes/BC_BattleGameModeBase.h"
 
 #include "Combat/Battle/Battle.h"
-#include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
-#include "GameFramework/GameSession.h"
-#include "GameplayAbilitySystem/AttributeSets/BC_WarriorAttributeSet.h"
+#include "Combat/Battle/BattlePosition.h"
+#include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
-#include "Net/UnrealNetwork.h"
 #include "PlayerControllers/BC_BattlePlayerController.h"
-#include "PlayerStates/BC_BattlePlayerState.h"
 
-ABC_BattleGameModeBase::ABC_BattleGameModeBase()
+
+void ABC_BattleGameModeBase::PostLogin(APlayerController* NewPlayer)
 {
-	PlayerStateClass = ABC_BattlePlayerState::StaticClass();
-	PlayerControllerClass = ABC_BattlePlayerController::StaticClass();
-	/*AbilitySystemComponent = CreateDefaultSubobject<UBC_AbilitySystemComponent>("AbilitySystemComponent");
-	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full);
-	AttributeSet = CreateDefaultSubobject<UBC_WarriorAttributeSet>("AttributeSet");*/
-}
+	Super::PostLogin(NewPlayer);
 
-void ABC_BattleGameModeBase::BeginPlay()
-{
-	Super::BeginPlay();
+	const int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
+	ABC_BattlePlayerController* BC_NewPlayer = CastChecked<ABC_BattlePlayerController>(NewPlayer);
+	BC_NewPlayer->Server_SetControllerIndex(NumOfPlayers - 1);
+	PlayerControllers.Add(BC_NewPlayer);
 
-	
-	/*check(InitStatsGameplayEffectClass);
-	
-	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
-	ContextHandle.AddSourceObject(this);
-	const FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(InitStatsGameplayEffectClass, 1, ContextHandle);
-	AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*EffectSpecHandle.Data.Get(), AbilitySystemComponent);*/
-}
 
-void ABC_BattleGameModeBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ABC_BattleGameModeBase, ActiveBattle);
-}
-
-void ABC_BattleGameModeBase::OnRep_ActiveBattle()
-{
-}
-
-FString ABC_BattleGameModeBase::InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId,
-                                              const FString& Options, const FString& Portal)
-{
-	FString ErrorMessage = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, Portal);
-	if(HasAuthority())
+	if (NumOfPlayers == 2)
 	{
-		if(PlayerState1 == nullptr)
-		{
-			ABC_BattlePlayerState* PlayerState = NewPlayerController->GetPlayerState<ABC_BattlePlayerState>();
-			check(PlayerState);
-			PlayerState1 = PlayerState;
-			PlayerController1 = CastChecked<ABC_BattlePlayerController>(NewPlayerController);
-		}
-		else if (PlayerState2 == nullptr)
-		{
-			ABC_BattlePlayerState* PlayerState = NewPlayerController->GetPlayerState<ABC_BattlePlayerState>();
-			check(PlayerState);
-			PlayerState2 = PlayerState;
-			PlayerController2 = CastChecked<ABC_BattlePlayerController>(NewPlayerController);
-
-			OnPlayersInitialized();
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Yellow, "Extra player");
-			//UGameplayStatics::RemovePlayer(NewPlayerController, true);
-			//UKismetSystemLibrary::QuitGame(GetWorld(), NewPlayerController,EQuitPreference::Quit, false);
-		}
+		GetWorld()->GetTimerManager().ClearTimer(InitBattleHandle);
+		GetWorld()->GetTimerManager().SetTimer(InitBattleHandle, this, &ThisClass::InitBattle, 5.f);
 	}
-	return ErrorMessage;
+}
+
+ABC_WarriorBase* ABC_BattleGameModeBase::GetNextWarrior()
+{
+	if(AliveWarriors.Num() < 2)
+	{
+		return nullptr;
+	}
+	
+	AliveWarriors.Sort([](const TObjectPtr<ABC_WarriorBase>& WarriorX, const TObjectPtr<ABC_WarriorBase>& WarriorY)
+	{
+		return WarriorX->IsAlive() && WarriorY->IsAlive() && WarriorX->GetActionSpeed() < WarriorY->GetActionSpeed();
+	});
+
+	if(/*PlayerControllers[0]->HasAliveWarrior() && PlayerControllers[1]->HasAliveWarrior()*/ true)
+	{
+		return AliveWarriors[0];
+	}
+	
+	return nullptr;
+}
+
+ABC_BattlePlayerController* ABC_BattleGameModeBase::GetPlayerInTurnController()
+{
+	const ABC_WarriorBase* NextWarrior = GetNextWarrior();
+	check(NextWarrior)
+	PlayerInTurnIndex = NextWarrior->GetPlayerIndex();
+
+	ABC_BattlePlayerController* PlayerController = CastChecked<ABC_BattlePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), PlayerInTurnIndex));
+	return PlayerController;
+}
+
+ABC_BattlePlayerController* ABC_BattleGameModeBase::GetPlayerOutTurnController() const
+{
+	const int32 PlayerNotInTurnIndex = PlayerInTurnIndex == 0;
+	ABC_BattlePlayerController* PlayerController = CastChecked<ABC_BattlePlayerController>(
+		UGameplayStatics::GetPlayerController(GetWorld(), PlayerNotInTurnIndex));
+	return PlayerController;
+}
+
+void ABC_BattleGameModeBase::InitBattle()
+{
+	Server_SpawnWarriors(PlayerControllers[0], BattlePositions1);
+	Server_SpawnWarriors(PlayerControllers[1], BattlePositions2);
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red,
+	                                 FString::FromInt(PlayerControllers[0]->GetControllerIndex()));
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red,
+	                                 FString::FromInt(PlayerControllers[1]->GetControllerIndex()));
+	StartBattle();
+}
+
+void ABC_BattleGameModeBase::StartBattle()
+{
+	ABC_BattlePlayerController* PlayerInTurn = GetPlayerInTurnController();
+	
+	PlayerInTurn->Client_StartPlayerTurn();
+}
+
+bool ABC_BattleGameModeBase::Server_SpawnWarriors_Validate(ABC_BattlePlayerController* InBattlePlayerController,
+                                                           const TArray<TSoftObjectPtr<ABattlePosition>>&
+                                                           InBattlePositions)
+{
+	if (!InBattlePlayerController)
+	{
+		return false;
+	}
+	UBattleKitComponent* BattleKitComponent = InBattlePlayerController->GetComponentByClass<UBattleKitComponent>();
+	if (!BattleKitComponent)
+	{
+		return false;
+	}
+	const FBattleKitInfo BattleKitInfo = BattleKitComponent->GetBattleKitInfo();
+	if (!BattleKitInfo.IsValid())
+	{
+		return false;
+	}
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void ABC_BattleGameModeBase::Server_SpawnWarriors_Implementation(ABC_BattlePlayerController* InBattlePlayerController,
+                                                                 const TArray<TSoftObjectPtr<ABattlePosition>>
+                                                                 & InBattlePositions)
+{
+	const FBattleKitInfo BattleKitInfo = InBattlePlayerController->GetComponentByClass<UBattleKitComponent>()->
+	                                                               GetBattleKitInfo();
+	UWorld* World = GetWorld();
+	for (int32 i = 0; i < BattleKitInfo.WarriorClasses.Num(); i++)
+	{
+		ABC_WarriorBase* WarriorToSpawn = World->SpawnActorDeferred<ABC_WarriorBase>(
+			BattleKitInfo.WarriorClasses[i], FTransform::Identity, InBattlePlayerController);
+		const uint32 PlayerIndex = InBattlePlayerController->GetControllerIndex();
+		WarriorToSpawn->Server_SetPlayerIndex(PlayerIndex);
+		WarriorToSpawn->Server_InitAbilityActorInfo();
+		AliveWarriors.Add(WarriorToSpawn);
+		NetMulticast_SpawnWarriors(InBattlePositions[i].Get()->GetActorTransform(), WarriorToSpawn);
+	}
+}
+
+
+void ABC_BattleGameModeBase::NetMulticast_SpawnWarriors_Implementation(
+	const FTransform& InWarriorTransform, ABC_WarriorBase*
+	InWarriorToSpawn)
+{
+	InWarriorToSpawn->FinishSpawning(InWarriorTransform);
 }

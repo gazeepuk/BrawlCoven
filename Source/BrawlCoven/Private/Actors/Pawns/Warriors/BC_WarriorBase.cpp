@@ -7,6 +7,7 @@
 #include "Combat/Components/CombatComponent.h"
 #include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
 #include "GameplayAbilitySystem/AttributeSets/BC_WarriorAttributeSet.h"
+#include "Net/UnrealNetwork.h"
 #include "PlayerStates/BC_BattlePlayerState.h"
 
 
@@ -57,10 +58,17 @@ bool ABC_WarriorBase::IsAlive() const
 	return WarriorAttributeSet->GetHealth() > 0;
 }
 
-void ABC_WarriorBase::BeginPlay()
+void ABC_WarriorBase::Server_SetPlayerIndex_Implementation(int32 InPlayerIndex)
 {
-	Super::BeginPlay();
-	InitAbilityActorInfo_Server();
+	PlayerIndex = InPlayerIndex;
+}
+
+
+void ABC_WarriorBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, PlayerIndex);
 }
 
 #pragma region Initializing Attributes 
@@ -84,6 +92,7 @@ void ABC_WarriorBase::InitializeSecondaryAttributes() const
 void ABC_WarriorBase::InitializeVitalAttributes() const
 {
 	ApplyEffectSpecToSelf(WarriorDataAsset->VitalAttributesEffect);
+	check(CombatComponent);
 	CombatComponent->SetDefaultActionSpeed();
 }
 
@@ -105,7 +114,7 @@ void ABC_WarriorBase::AddWarriorAbilities() const
 }
 
 
-void ABC_WarriorBase::InitAbilityActorInfo_Client_Implementation()
+void ABC_WarriorBase::Server_InitAbilityActorInfo_Implementation()
 {
 
 	AddWarriorAbilities();
@@ -121,21 +130,6 @@ void ABC_WarriorBase::InitAbilityActorInfo_Client_Implementation()
 	InitializeDefaultAttributes();
 }
 
-void ABC_WarriorBase::InitAbilityActorInfo_Server_Implementation()
-{
-
-	InitAbilityActorInfo_Client_Implementation();
-	/*APlayerController* PlayerController = GetController<APlayerController>();
-	if(PlayerController)
-		ABC_HUD* HUD = PlayerController->GetHUD<ABC_HUD>();
-		if(!HUD)
-		{
-			return;
-		}
-		
-		HUD->InitOverlay(PlayerController, BC_PlayerState, AbilitySystemComponent, AttributeSet);
-	}*/
-}
 
 
 void ABC_WarriorBase::ApplyEffectSpecToSelf(const TSubclassOf<UGameplayEffect>& AttributeClass, const float Level) const
@@ -152,21 +146,4 @@ void ABC_WarriorBase::ApplyEffectSpecToSelf(const TSubclassOf<UGameplayEffect>& 
 void ABC_WarriorBase::OnDeath()
 {
 	//TODO: death behavior
-}
-
-void ABC_WarriorBase::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-
-	
-	//Init actor info for the server
-	//InitAbilityActorInfo();
-}
-
-void ABC_WarriorBase::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-
-	//Init actor info for the client
-	//InitAbilityActorInfo();
 }

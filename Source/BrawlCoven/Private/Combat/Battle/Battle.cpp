@@ -120,7 +120,8 @@ void ABattle::StartTurn_Client_Implementation()
 
 bool ABattle::IsReadyForNextTurn() const
 {
-	return Player1->HasAliveWarrior() && Player2->HasAliveWarrior();
+	//return Player1->HasAliveWarrior() && Player2->HasAliveWarrior();
+	return true;
 }
 
 void ABattle::SetReadyForNextTurn()

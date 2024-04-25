@@ -7,6 +7,7 @@
 #include "GameModes/BC_GameModeBase.h"
 #include "BC_BattleGameModeBase.generated.h"
 
+class ABC_WarriorBase;
 class ABattle;
 class ABC_BattlePlayerController;
 class ABattlePosition;
@@ -21,42 +22,46 @@ UCLASS()
 class BRAWLCOVEN_API ABC_BattleGameModeBase : public ABC_GameModeBase
 {
 	GENERATED_BODY()
-public:
-	ABC_BattleGameModeBase();
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	void OnRep_ActiveBattle();
 protected:
-	virtual void BeginPlay() override;
-
-	//GameplayAbilitySystem
-	/*UPROPERTY(BlueprintReadOnly, Category = "GAS")
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
-	UPROPERTY(BlueprintReadOnly, Category = "GAS")
-	TObjectPtr<UBC_WarriorAttributeSet> AttributeSet;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS")
-	TSubclassOf<UGameplayEffect> InitStatsGameplayEffectClass;*/
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 	//Battle
-	UPROPERTY(BlueprintReadWrite, Category = "Battle", Replicated = OnRep_ActiveBattle)
-	ABattle* ActiveBattle = nullptr;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Battle")
-	TSoftObjectPtr<ABattlePosition> BattlePosition1;
+	TArray<TSoftObjectPtr<ABattlePosition>> BattlePositions1;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Battle")
-	TSoftObjectPtr<ABattlePosition> BattlePosition2;
+	TArray<TSoftObjectPtr<ABattlePosition>> BattlePositions2;
 
 	//Players
+	int32 PlayerInTurnIndex;
 	UPROPERTY(BlueprintReadWrite, Category = "Players|States")
 	TObjectPtr<ABC_BattlePlayerState> PlayerState1;
-	UPROPERTY(BlueprintReadWrite, Category = "Players|Controllers")
-	TObjectPtr<ABC_BattlePlayerController> PlayerController1;
 	UPROPERTY(BlueprintReadWrite, Category = "Players|States")
 	TObjectPtr<ABC_BattlePlayerState> PlayerState2;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Players|Controllers")
+	TObjectPtr<ABC_BattlePlayerController> PlayerController1;
 	UPROPERTY(BlueprintReadWrite, Category = "Players|Controllers")
 	TObjectPtr<ABC_BattlePlayerController> PlayerController2;
+	UPROPERTY()
+	TArray<TObjectPtr<ABC_BattlePlayerController>> PlayerControllers;
 	
-	virtual FString InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal) override;
+	TArray<TObjectPtr<ABC_WarriorBase>> AliveWarriors;
 
+	FTimerHandle InitBattleHandle;
+	
+	ABC_WarriorBase* GetNextWarrior();
+	ABC_BattlePlayerController* GetPlayerInTurnController();
+	ABC_BattlePlayerController* GetPlayerOutTurnController() const;
+	
+	void InitBattle();
+	void StartBattle();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SpawnWarriors(ABC_BattlePlayerController* InBattlePlayerController, const TArray<TSoftObjectPtr<ABattlePosition>>& InBattlePositions);
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticast_SpawnWarriors(const FTransform& InWarriorTransform, ABC_WarriorBase*
+	                                InWarriorToSpawn);
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnPlayersInitialized();
 };

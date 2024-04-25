@@ -6,10 +6,16 @@
 #include "EnhancedInputSubsystems.h"
 #include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
 #include "Input/BC_EnhancedInputComponent.h"
+#include "Net/UnrealNetwork.h"
 
 ABC_PlayerControllerBase::ABC_PlayerControllerBase()
 {
 	bReplicates = true;
+}
+
+void ABC_PlayerControllerBase::Server_SetControllerIndex_Implementation(int32 InControllerIndex)
+{
+	ControllerIndex = InControllerIndex;
 }
 
 void ABC_PlayerControllerBase::BeginPlay()
@@ -34,47 +40,14 @@ void ABC_PlayerControllerBase::BeginPlay()
 	InputModeGameAndUI.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	InputModeGameAndUI.SetHideCursorDuringCapture(false);
 	SetInputMode(InputModeGameAndUI);
+	
 }
 
-void ABC_PlayerControllerBase::SetupInputComponent()
+void ABC_PlayerControllerBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::SetupInputComponent();
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	UBC_EnhancedInputComponent* BCInputComponent = CastChecked<UBC_EnhancedInputComponent>(InputComponent);
-
-	BCInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed,
-	                                     &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
+	DOREPLIFETIME_CONDITION(ThisClass, ControllerIndex, ELifetimeCondition::COND_OwnerOnly);
 }
 
-void ABC_PlayerControllerBase::AbilityInputTagPressed(FGameplayTag InputTag)
-{
 
-}
-
-void ABC_PlayerControllerBase::AbilityInputTagReleased(FGameplayTag InputTag)
-{
-	if(!GetASC())
-	{
-		return;
-	}
-	GetASC()->AbilityInputTagReleased(InputTag);
-}
-
-void ABC_PlayerControllerBase::AbilityInputTagHeld(FGameplayTag InputTag)
-{
-	if(!GetASC())
-	{
-		return;
-	}
-	GetASC()->AbilityInputTagHeld(InputTag);
-}
-
-UBC_AbilitySystemComponent* ABC_PlayerControllerBase::GetASC()
-{
-	if (BCAbilitySystemComponent == nullptr)
-	{
-		BCAbilitySystemComponent = Cast<UBC_AbilitySystemComponent>(
-			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
-	}
-	return BCAbilitySystemComponent;
-}

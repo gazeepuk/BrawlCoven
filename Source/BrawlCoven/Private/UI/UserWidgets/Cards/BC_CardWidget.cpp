@@ -13,9 +13,3 @@ void UBC_CardWidget::NativeConstruct()
 		CardButton->OnClicked.AddDynamic(this, &UBC_CardWidget::OnButtonClicked);
 	}
 }
-
-void UBC_CardWidget::OnButtonClicked()
-{
-	
-}
-

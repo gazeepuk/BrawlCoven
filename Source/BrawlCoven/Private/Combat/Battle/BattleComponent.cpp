@@ -1,19 +1,15 @@
 // Ivan Piankouski / GazeePuk
 
 
-#include "Combat/Battle/Battle.h"
+#include "Combat/Battle/BattleComponent.h"
 #include "Combat/Battle/BattlePosition.h"
 #include "Actors/Pawns/Warriors/BC_WarriorBase.h"
 #include "Combat/Components/CombatComponent.h"
 #include "PlayerControllers/BC_BattlePlayerController.h"
 
 
-ABattle::ABattle()
-{
-	bReplicates = true;
-}
 
-void ABattle::InitBattle(ABC_BattlePlayerController* PlayerController1, ABC_BattlePlayerController* PlayerController2)
+void UBattleComponent::InitBattle(ABC_BattlePlayerController* PlayerController1, ABC_BattlePlayerController* PlayerController2)
 {
 	Player1 = PlayerController1;
 	Player2 = PlayerController2;
@@ -43,7 +39,7 @@ void ABattle::InitBattle(ABC_BattlePlayerController* PlayerController1, ABC_Batt
 	StartTurn_Client();
 }
 
-bool ABattle::SpawnWarriors_Server_Validate(ABC_BattlePlayerController* PlayerController,
+bool UBattleComponent::SpawnWarriors_Server_Validate(ABC_BattlePlayerController* PlayerController,
                                             const TArray<TSoftObjectPtr<ABattlePosition>>& BattlePositions)
 {
 	//Validation checking
@@ -56,7 +52,7 @@ bool ABattle::SpawnWarriors_Server_Validate(ABC_BattlePlayerController* PlayerCo
 }
 
 
-void ABattle::SpawnWarriors_Server_Implementation(ABC_BattlePlayerController* PlayerController,
+void UBattleComponent::SpawnWarriors_Server_Implementation(ABC_BattlePlayerController* PlayerController,
                                                   const TArray<TSoftObjectPtr<ABattlePosition>>& BattlePositions)
 {
 	const TArray<TSubclassOf<ABC_WarriorBase>>& WarriorClasses = PlayerController->GetPlayerWarriorClasses();
@@ -74,7 +70,7 @@ void ABattle::SpawnWarriors_Server_Implementation(ABC_BattlePlayerController* Pl
 	SpawnWarriors_Client(WarriorClasses, HardBattlePositions, PlayerController);
 }
 
-void ABattle::SpawnWarriors_Client_Implementation(const TArray<TSubclassOf<ABC_WarriorBase>>& WarriorClasses,
+void UBattleComponent::SpawnWarriors_Client_Implementation(const TArray<TSubclassOf<ABC_WarriorBase>>& WarriorClasses,
                                                   const TArray<ABattlePosition*>& BattlePositions,
                                                   ABC_BattlePlayerController* OwningPlayerController)
 {
@@ -88,19 +84,19 @@ void ABattle::SpawnWarriors_Client_Implementation(const TArray<TSubclassOf<ABC_W
 		UCombatComponent* CombatComponent = WarriorToSpawn->GetComponentByClass<UCombatComponent>();
 		check(CombatComponent);
 		OnWarriorEndTurn.AddUniqueDynamic(CombatComponent, &UCombatComponent::DecreaseActionSpeed);
-		CombatComponent->OnTurnEnded.AddUniqueDynamic(this, &ABattle::SetReadyForNextTurn);
+		CombatComponent->OnTurnEnded.AddUniqueDynamic(this, &UBattleComponent::SetReadyForNextTurn);
 
 		WarriorToSpawn->FinishSpawning(WarriorTransform);
 
 		AliveWarriors.Add(WarriorToSpawn);
-		OwningPlayerController->AddWarrior(WarriorToSpawn);
+		OwningPlayerController->Server_AddWarrior(WarriorToSpawn);
 	}
 
 	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, "SpawnWarriors_Client Completed");
 	StartTurn_Client();
 }
 
-void ABattle::StartTurn_Client_Implementation()
+void UBattleComponent::StartTurn_Client_Implementation()
 {
 	if (!IsReadyForNextTurn())
 	{
@@ -118,13 +114,13 @@ void ABattle::StartTurn_Client_Implementation()
 
 }
 
-bool ABattle::IsReadyForNextTurn() const
+bool UBattleComponent::IsReadyForNextTurn() const
 {
 	//return Player1->HasAliveWarrior() && Player2->HasAliveWarrior();
 	return true;
 }
 
-void ABattle::SetReadyForNextTurn()
+void UBattleComponent::SetReadyForNextTurn()
 {
 	bReadyForNextTurn = true;
 
@@ -138,7 +134,7 @@ void ABattle::SetReadyForNextTurn()
 	}
 }
 
-TObjectPtr<ABC_WarriorBase> ABattle::GetNextTurnWarrior()
+TObjectPtr<ABC_WarriorBase> UBattleComponent::GetNextTurnWarrior()
 {
 	if (AliveWarriors.Num() == 0)
 	{

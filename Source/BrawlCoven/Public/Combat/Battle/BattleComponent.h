@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Actors/Pawns/Warriors/BC_WarriorBase.h"
-#include "Battle.generated.h"
+#include "BattleComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWarriorEndTurn, float, SubtractionValue);
 
@@ -17,7 +17,7 @@ class ABC_WarriorBase;
  * 
  */
 UCLASS(BlueprintType)
-class BRAWLCOVEN_API ABattle : public AActor
+class BRAWLCOVEN_API UBattleComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -35,8 +35,6 @@ public:
 	void SetReadyForNextTurn();
 
 	FOnWarriorEndTurn OnWarriorEndTurn;
-protected:
-	ABattle();
 private:
 	//BattleInfo
 	bool bReadyForNextTurn = true;

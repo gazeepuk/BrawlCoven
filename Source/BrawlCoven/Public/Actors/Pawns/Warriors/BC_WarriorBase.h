@@ -9,14 +9,13 @@
 #include "GameFramework/Pawn.h"
 #include "BC_WarriorBase.generated.h"
 
+
 class UCombatComponent;
 class UWarriorDataAsset;
 class UBC_GameplayAbility;
 class UGameplayEffect;
 class UAttributeSet;
 class UAbilitySystemComponent;
-
-
 
 
 UCLASS()
@@ -80,4 +79,8 @@ private:
 
 	UPROPERTY(Replicated)
 	int32 PlayerIndex;
+
+	UPROPERTY(Replicated)
+	bool bActive = false;
+	
 };

@@ -20,23 +20,23 @@ protected:
 	
 	virtual void NativeConstruct() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Card|Generic")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card|Generic")
 	FName CardName = "Card Name";
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Card|SizeBox")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card|SizeBox")
 	FVector2D BoxSize = FVector2D(150.f, 200.f);
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Card|SizeBox", meta =(BindWidget))
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card|SizeBox", meta =(BindWidget))
 	TObjectPtr<USizeBox> SizeBoxRoot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Card|Foreground")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card|Foreground")
 	TObjectPtr<UTexture2D> CardImage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Card|Background")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card|Background")
 	TObjectPtr<UTexture2D> BackgroundImage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Card|Interaction", meta =(BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Card|Interaction", meta =(BindWidget))
 	TObjectPtr<UButton> CardButton;
-
-	UFUNCTION(Category = "Card|Interaction")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Card|Interaction")
 	void OnButtonClicked();
 };

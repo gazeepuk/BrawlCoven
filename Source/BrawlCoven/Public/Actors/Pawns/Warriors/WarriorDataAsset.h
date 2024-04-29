@@ -15,7 +15,7 @@ class ABC_WarriorBase;
  * 
  */
 
-UCLASS()
+UCLASS(BlueprintType)
 class BRAWLCOVEN_API UWarriorDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
@@ -48,4 +48,5 @@ public:
 	TSubclassOf<UGameplayEffect> SecondaryAttributesEffect;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UGameplayEffect> VitalAttributesEffect;
+	
 };

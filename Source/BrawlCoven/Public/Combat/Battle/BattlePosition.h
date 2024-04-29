@@ -9,6 +9,14 @@
 class ABC_WarriorBase;
 class UArrowComponent;
 
+UENUM(BlueprintType)
+enum class EBattleTeam
+{
+	None,
+	Player_1,
+	Player_2
+};
+
 UCLASS(Blueprintable, BlueprintType)
 class BRAWLCOVEN_API ABattlePosition : public AActor
 {
@@ -17,14 +25,17 @@ class BRAWLCOVEN_API ABattlePosition : public AActor
 public:	
 	ABattlePosition();
 
-	ABC_WarriorBase* SpawnWarrior(TSubclassOf<ABC_WarriorBase> InWarriorClass, TObjectPtr<AController> InPC) const;
+	FORCEINLINE
+	EBattleTeam GetBattleTeam() const{return BattleTeam;}
+	
 protected:
-	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UArrowComponent> Arrow;
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UPrimitiveComponent> Root;
+
 	UPROPERTY(EditAnywhere)
-	bool bEnemyPlacement = false;
+	EBattleTeam BattleTeam;
+
 };

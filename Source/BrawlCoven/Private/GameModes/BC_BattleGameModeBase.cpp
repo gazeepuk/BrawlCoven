@@ -3,7 +3,6 @@
 
 #include "GameModes/BC_BattleGameModeBase.h"
 
-#include "Combat/Battle/Battle.h"
 #include "Combat/Battle/BattlePosition.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -39,7 +38,7 @@ ABC_WarriorBase* ABC_BattleGameModeBase::GetNextWarrior()
 		return WarriorX->IsAlive() && WarriorY->IsAlive() && WarriorX->GetActionSpeed() < WarriorY->GetActionSpeed();
 	});
 
-	if(/*PlayerControllers[0]->HasAliveWarrior() && PlayerControllers[1]->HasAliveWarrior()*/ true)
+	if(PlayerControllers[0]->HasAliveWarriors() && PlayerControllers[1]->HasAliveWarriors())
 	{
 		return AliveWarriors[0];
 	}
@@ -47,12 +46,14 @@ ABC_WarriorBase* ABC_BattleGameModeBase::GetNextWarrior()
 	return nullptr;
 }
 
-ABC_BattlePlayerController* ABC_BattleGameModeBase::GetPlayerInTurnController()
+ABC_BattlePlayerController* ABC_BattleGameModeBase::GetPlayerInTurnController(ABC_WarriorBase*& OutNextWarriorInTurn)
 {
-	const ABC_WarriorBase* NextWarrior = GetNextWarrior();
+	ABC_WarriorBase* NextWarrior = GetNextWarrior();
 	check(NextWarrior)
 	PlayerInTurnIndex = NextWarrior->GetPlayerIndex();
 
+	OutNextWarriorInTurn = NextWarrior;
+	
 	ABC_BattlePlayerController* PlayerController = CastChecked<ABC_BattlePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), PlayerInTurnIndex));
 	return PlayerController;
 }
@@ -65,21 +66,62 @@ ABC_BattlePlayerController* ABC_BattleGameModeBase::GetPlayerOutTurnController()
 	return PlayerController;
 }
 
+void ABC_BattleGameModeBase::SetupBattlePositions()
+{
+	TArray<UObject*> BattlePositions;
+	GetObjectsOfClass(ABattlePosition::StaticClass(),BattlePositions);
+	for (UObject* BattlePositionObject : BattlePositions)
+	{
+		const ABattlePosition* BattlePosition = Cast<ABattlePosition>(BattlePositionObject);
+		BattlePosition->GetBattleTeam() == EBattleTeam::Player_1 ? BattlePositions1.AddUnique(BattlePosition) : BattlePositions2.AddUnique(BattlePosition);
+	}
+	check(BattlePositions1.Num() > 0 && BattlePositions2.Num() > 0);
+}
+
 void ABC_BattleGameModeBase::InitBattle()
 {
+	//Get BattlePositions and sort by team type
+	SetupBattlePositions();
+
+	PlayerController1 = PlayerControllers[0];
+	PlayerController2 = PlayerControllers[1];
+	
 	Server_SpawnWarriors(PlayerControllers[0], BattlePositions1);
 	Server_SpawnWarriors(PlayerControllers[1], BattlePositions2);
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red,
-	                                 FString::FromInt(PlayerControllers[0]->GetControllerIndex()));
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red,
-	                                 FString::FromInt(PlayerControllers[1]->GetControllerIndex()));
 	StartBattle();
 }
 
 void ABC_BattleGameModeBase::StartBattle()
 {
-	ABC_BattlePlayerController* PlayerInTurn = GetPlayerInTurnController();
-	
+	ForceNetUpdate();
+	if(!IsReadyForNextTurn())
+	{
+		return;
+	}
+	StartTurn();
+}
+
+bool ABC_BattleGameModeBase::IsReadyForNextTurn()
+{
+	ForceNetUpdate();
+	return PlayerController1->HasAliveWarriors() && PlayerController2->HasAliveWarriors();
+}
+
+void ABC_BattleGameModeBase::EndBattle()
+{
+	GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Red, "Battle is ended");
+}
+
+void ABC_BattleGameModeBase::StartTurn()
+{
+	ABC_WarriorBase* OutNextWarriorInTurn;
+	ABC_BattlePlayerController* PlayerInTurn = GetPlayerInTurnController(OutNextWarriorInTurn);
+	if(!PlayerInTurn || !OutNextWarriorInTurn)
+	{
+		EndBattle();
+	}
+	PlayerControllers[0]->Server_SetActiveWarrior(OutNextWarriorInTurn);
+	PlayerControllers[1]->Server_SetActiveWarrior(OutNextWarriorInTurn);
 	PlayerInTurn->Client_StartPlayerTurn();
 }
 
@@ -123,7 +165,7 @@ void ABC_BattleGameModeBase::Server_SpawnWarriors_Implementation(ABC_BattlePlaye
 			BattleKitInfo.WarriorClasses[i], FTransform::Identity, InBattlePlayerController);
 		const uint32 PlayerIndex = InBattlePlayerController->GetControllerIndex();
 		WarriorToSpawn->Server_SetPlayerIndex(PlayerIndex);
-		WarriorToSpawn->Server_InitAbilityActorInfo();
+		InBattlePlayerController->Server_AddWarrior(WarriorToSpawn);
 		AliveWarriors.Add(WarriorToSpawn);
 		NetMulticast_SpawnWarriors(InBattlePositions[i].Get()->GetActorTransform(), WarriorToSpawn);
 	}
@@ -135,4 +177,5 @@ void ABC_BattleGameModeBase::NetMulticast_SpawnWarriors_Implementation(
 	InWarriorToSpawn)
 {
 	InWarriorToSpawn->FinishSpawning(InWarriorTransform);
+	InWarriorToSpawn->Server_InitAbilityActorInfo();
 }

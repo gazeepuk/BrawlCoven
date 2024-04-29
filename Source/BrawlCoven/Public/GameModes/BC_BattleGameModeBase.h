@@ -3,12 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayEffect.h"
 #include "GameModes/BC_GameModeBase.h"
 #include "BC_BattleGameModeBase.generated.h"
 
 class ABC_WarriorBase;
-class ABattle;
+class UBattleComponent;
 class ABC_BattlePlayerController;
 class ABattlePosition;
 class UBC_WarriorAttributeSet;
@@ -26,9 +25,7 @@ protected:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 	//Battle
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Battle")
 	TArray<TSoftObjectPtr<ABattlePosition>> BattlePositions1;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Battle")
 	TArray<TSoftObjectPtr<ABattlePosition>> BattlePositions2;
 
 	//Players
@@ -50,18 +47,19 @@ protected:
 	FTimerHandle InitBattleHandle;
 	
 	ABC_WarriorBase* GetNextWarrior();
-	ABC_BattlePlayerController* GetPlayerInTurnController();
+	ABC_BattlePlayerController* GetPlayerInTurnController(ABC_WarriorBase*& OutNextWarriorInTurn);
 	ABC_BattlePlayerController* GetPlayerOutTurnController() const;
-	
+
 	void InitBattle();
 	void StartBattle();
+	bool IsReadyForNextTurn();
+	void SetupBattlePositions();
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SpawnWarriors(ABC_BattlePlayerController* InBattlePlayerController, const TArray<TSoftObjectPtr<ABattlePosition>>& InBattlePositions);
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulticast_SpawnWarriors(const FTransform& InWarriorTransform, ABC_WarriorBase*
 	                                InWarriorToSpawn);
-	
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnPlayersInitialized();
+	void EndBattle();
+	void StartTurn();
 };

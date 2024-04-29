@@ -8,8 +8,7 @@
 #include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
 #include "GameplayAbilitySystem/AttributeSets/BC_WarriorAttributeSet.h"
 #include "Net/UnrealNetwork.h"
-#include "PlayerStates/BC_BattlePlayerState.h"
-
+#include "PlayerControllers/BC_BattlePlayerController.h"
 
 ABC_WarriorBase::ABC_WarriorBase()
 {
@@ -67,8 +66,9 @@ void ABC_WarriorBase::Server_SetPlayerIndex_Implementation(int32 InPlayerIndex)
 void ABC_WarriorBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
+	
 	DOREPLIFETIME(ThisClass, PlayerIndex);
+	DOREPLIFETIME(ThisClass, bActive);
 }
 
 #pragma region Initializing Attributes 

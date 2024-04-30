@@ -21,9 +21,12 @@ UCLASS()
 class BRAWLCOVEN_API ABC_BattleGameModeBase : public ABC_GameModeBase
 {
 	GENERATED_BODY()
+public:
+	void SubtractActionSpeedForAllWarriors(float SubtractingValue);
+	void EndPlayerTurn();
 protected:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
-
+	virtual void BeginPlay() override;
 	//Battle
 	TArray<TSoftObjectPtr<ABattlePosition>> BattlePositions1;
 	TArray<TSoftObjectPtr<ABattlePosition>> BattlePositions2;

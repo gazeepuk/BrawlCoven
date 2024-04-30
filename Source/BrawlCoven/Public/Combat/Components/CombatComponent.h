@@ -20,7 +20,8 @@ class BRAWLCOVEN_API UCombatComponent : public UActorComponent
 public:
 	UCombatComponent();
 	void StartWarriorTurn();
-	void EndWarriorTurn() const;
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void Server_EndWarriorTurn() const;
 	UFUNCTION()
 	void DecreaseActionSpeed(float InSubtractionValue);
 	UFUNCTION()

@@ -22,8 +22,6 @@ void ABC_BattlePlayerController::Server_AddWarrior_Implementation(ABC_WarriorBas
 void ABC_BattlePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	OnTurnChanged.Broadcast(bInTurn);
 }
 
 void ABC_BattlePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -72,6 +70,10 @@ void ABC_BattlePlayerController::Client_StartPlayerTurn_Implementation()
 void ABC_BattlePlayerController::Server_SetActiveWarrior_Implementation(ABC_WarriorBase* InActiveWarrior)
 {
 	ActiveWarrior = InActiveWarrior;
+	if(this->HasAuthority())
+	{
+		OnNextWarriorTurn();
+	}
 }
 
 bool ABC_BattlePlayerController::HasAliveWarriors() const

@@ -51,6 +51,9 @@ public:
 	bool HasAliveWarriors() const;
 	UFUNCTION()
 	void OnNextWarriorTurn() const;
+
+	UFUNCTION(BlueprintCallable,BlueprintPure)
+	ABC_WarriorBase* GetActiveWarrior() const {return ActiveWarrior;}
 protected:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

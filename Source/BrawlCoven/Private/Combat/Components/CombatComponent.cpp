@@ -7,7 +7,9 @@
 #include "BC_GameplayTags.h"
 #include "Actors/Pawns/Warriors/BC_WarriorBase.h"
 #include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
+#include "GameModes/BC_BattleGameModeBase.h"
 #include "GameplayAbilitySystem/AttributeSets/BC_WarriorAttributeSet.h"
+#include "Kismet/GameplayStatics.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -70,8 +72,18 @@ void UCombatComponent::StartWarriorTurn()
 	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Emerald, "Warrior Started Turn: " + GetOwner()->GetName());
 }
 
-void UCombatComponent::EndWarriorTurn() const
+void UCombatComponent::Server_EndWarriorTurn_Implementation() const
 {
 	SetDefaultActionSpeed();
-	OnTurnEnded.Broadcast();
+	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(GetWorld());
+	if(GameMode)
+	{
+		ABC_BattleGameModeBase* BC_GameMode = Cast<ABC_BattleGameModeBase>(GameMode);
+		if(BC_GameMode)
+		{
+			BC_GameMode->EndPlayerTurn();
+		}
+	}
 }
+
+	

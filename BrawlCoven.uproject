@@ -13,7 +13,8 @@
 				"GameplayAbilities",
 				"CoreUObject",
 				"EnhancedInput",
-				"UMG"
+				"UMG",
+				"SqliteGameDB"
 			]
 		}
 	],
@@ -32,6 +33,10 @@
 		{
 			"Name": "OnlineSubsystemSteam",
 			"Enabled": true
+		},
+		{
+			"Name": "SqliteGameDB",
+			"Enabled": false
 		}
 	]
 }

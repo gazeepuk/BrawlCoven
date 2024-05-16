@@ -5,19 +5,30 @@
 #include "AbilitySystemComponent.h"
 #include "Actors/Pawns/Warriors/WarriorDataAsset.h"
 #include "Combat/Components/CombatComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Components/AbilitySystemComponents/BC_AbilitySystemComponent.h"
 #include "GameplayAbilitySystem/AttributeSets/BC_WarriorAttributeSet.h"
+#include "GameplayAbilitySystem/Abilities/WarriorAbilities/WarriorAbility.h"
 #include "Net/UnrealNetwork.h"
-#include "PlayerControllers/BC_BattlePlayerController.h"
+#include "UI/UserWidgets/Cards/BC_CardWidget.h"
+#include "UI/WidgetControllers/BC_WarriorCardWidgetController.h"
 
 ABC_WarriorBase::ABC_WarriorBase()
 {
 	bReplicates = true;
 	PrimaryActorTick.bCanEverTick = false;
 
-	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>("SkeletalMesh");
-	SetRootComponent(SkeletalMesh);
+	USceneComponent* Root = CreateDefaultSubobject<USceneComponent>("Root");
+	SetRootComponent(Root);
 
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
+	StaticMesh->SetupAttachment(Root);
+	StaticMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CardWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("CardWidget");
+	CardWidgetComponent->SetupAttachment(Root);
+	
+	WarriorCardWidgetController = CreateDefaultSubobject<UBC_WarriorCardWidgetController>("CardWidgetController");
 	//GAS
 	AbilitySystemComponent = CreateDefaultSubobject<UBC_AbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
@@ -37,6 +48,27 @@ UAbilitySystemComponent* ABC_WarriorBase::GetAbilitySystemComponent() const
 UAttributeSet* ABC_WarriorBase::GetAttributeSet() const
 {
 	return AttributeSet;
+}
+
+UBC_GameplayAbility* ABC_WarriorBase::GetNormalAttackAbility() const
+{
+	const TSubclassOf<UGameplayAbility> NormalAttackAbilityClass = WarriorDataAsset->NormalAttackAbility;
+	const FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(NormalAttackAbilityClass, 1);
+	return Cast<UBC_GameplayAbility>(AbilitySpec.Ability);
+}
+
+UBC_GameplayAbility* ABC_WarriorBase::GetSkillAbility() const
+{
+	const TSubclassOf<UGameplayAbility> SkillAbilityClass = WarriorDataAsset->SkillAbility;
+	const FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(SkillAbilityClass, 1);
+	return Cast<UBC_GameplayAbility>(AbilitySpec.Ability);
+}
+
+UBC_GameplayAbility* ABC_WarriorBase::GetUltimateAbility() const
+{
+	const TSubclassOf<UGameplayAbility> UltimateAbilityClass = WarriorDataAsset->UltimateAbility;
+	const FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(UltimateAbilityClass, 1);
+	return Cast<UBC_GameplayAbility>(AbilitySpec.Ability);
 }
 
 
@@ -63,12 +95,35 @@ void ABC_WarriorBase::Server_SetPlayerIndex_Implementation(int32 InPlayerIndex)
 }
 
 
+void ABC_WarriorBase::Server_UseWarriorAbility_Implementation(UWarriorAbility* AbilityToUse, const TArray<AActor*>& Targets)
+{
+	TArray<FGameplayAbilitySpec> AbilitySpecs = AbilitySystemComponent->GetActivatableAbilities();
+	for (const FGameplayAbilitySpec& AbilitySpec : AbilitySpecs)
+	{
+		if(AbilitySpec.Ability.Get()->IsA(AbilityToUse->GetClass()))
+		{
+			AbilitySystemComponent->TryActivateAbility(AbilitySpec.Handle);
+		}
+	} 
+}
+
 void ABC_WarriorBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME(ThisClass, PlayerIndex);
 	DOREPLIFETIME(ThisClass, bActive);
+}
+
+void ABC_WarriorBase::BeginPlay()
+{
+	Super::BeginPlay();
+	WarriorCardWidgetController->SetWidgetControllerParams(FWidgetControllerParams(nullptr,nullptr,AbilitySystemComponent,AttributeSet),this);
+
+	UUserWidget* Widget = CardWidgetComponent->GetWidget();
+	check(Widget);
+	UBC_CardWidget* CardWidget = CastChecked<UBC_CardWidget>(Widget);
+	CardWidget->SetWidgetController(WarriorCardWidgetController);
 }
 
 #pragma region Initializing Attributes 
@@ -116,10 +171,8 @@ void ABC_WarriorBase::AddWarriorAbilities() const
 
 void ABC_WarriorBase::Server_InitAbilityActorInfo_Implementation()
 {
-
 	AddWarriorAbilities();
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
-
 
 	UBC_AbilitySystemComponent* BC_AbilitySystemComponent = Cast<UBC_AbilitySystemComponent>(AbilitySystemComponent);
 	if (BC_AbilitySystemComponent)

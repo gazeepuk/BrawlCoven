@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AttributeSet.h"
 #include "AbilitySystemComponent.h"
+#include "UI/WidgetControllers/BC_WarriorCardWidgetController.h"
 #include "BC_WarriorAttributeSet.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEmptyHealthSignature);
@@ -58,7 +59,12 @@ public:
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
+	UPROPERTY(BlueprintAssignable)
 	FOnEmptyHealthSignature OnEmptyHealth;
+	UPROPERTY(BlueprintAssignable)
+	FOnHealthChanged OnHealthChanged;
+	UPROPERTY(BlueprintAssignable)
+	FOnUltimateEnergyChanged OnUltimateEnergyChanged;
 	
 	// Begin Vital Attributes
 	UPROPERTY(BlueprintReadOnly, Replicated = OnRep_Health, Category = "Vital Stats")

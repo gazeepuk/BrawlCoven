@@ -98,6 +98,8 @@ void UBC_WarriorAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMod
 		{
 			OnEmptyHealth.Broadcast();
 		}
+		OnHealthChanged.Broadcast(GetHealth());
+
 	}
 	
 	if(Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
@@ -110,14 +112,22 @@ void UBC_WarriorAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMod
 			if(NewHealth < 0.f)
 			{
 				SetHealth(0.f);
+				OnEmptyHealth.Broadcast();
 			}
 			else
 			{
 				SetHealth(NewHealth);
+				OnHealthChanged.Broadcast(NewHealth);
 			}
 
 			const bool bFatal = NewHealth <= 0.f;
 		}
+	}
+
+	if(Data.EvaluatedData.Attribute == GetUltimateEnergyAttribute())
+	{
+		SetUltimateEnergy(FMath::Clamp(GetUltimateEnergy(), 0, GetMaxUltimateEnergy()));
+		OnUltimateEnergyChanged.Broadcast(GetUltimateEnergy());
 	}
 }
 #pragma region OnRep_Functions 

@@ -28,7 +28,7 @@ void UBC_WarriorCardWidgetController::BroadcastInitialValues()
 	
 	OnMaxHealthChanged.Broadcast(WarriorAttributeSet->GetMaxHealth());
 	OnHealthChanged.Broadcast(WarriorAttributeSet->GetHealth());
-	OnMaxUltimateEnegryChanged.Broadcast(WarriorAttributeSet->GetMaxUltimateEnergy());
-	OnUltimateEnegryChanged.Broadcast(WarriorAttributeSet->GetUltimateEnergy());
+	OnMaxUltimateEnergyChanged.Broadcast(WarriorAttributeSet->GetMaxUltimateEnergy());
+	OnUltimateEnergyChanged.Broadcast(WarriorAttributeSet->GetUltimateEnergy());
 }
 

@@ -20,7 +20,6 @@ void UBC_AbilitySystemComponent::AddWarriorAbilities(const TArray<TSubclassOf<UB
 			AbilitySpec.DynamicAbilityTags.AddTag(BCAbility->StartupInputTag);
 			GiveAbility(AbilitySpec);
 		}
-
 	}
 }
 

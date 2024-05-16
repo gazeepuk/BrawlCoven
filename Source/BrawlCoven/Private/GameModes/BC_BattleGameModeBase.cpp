@@ -12,7 +12,7 @@
 
 void ABC_BattleGameModeBase::SubtractActionSpeedForAllWarriors(const float SubtractingValue)
 {
-	for(int32 i =0; i < AliveWarriors.Num(); i++)
+	for (int32 i = 0; i < AliveWarriors.Num(); i++)
 	{
 		AliveWarriors[i]->GetComponentByClass<UCombatComponent>()->DecreaseActionSpeed(SubtractingValue);
 	}
@@ -20,8 +20,13 @@ void ABC_BattleGameModeBase::SubtractActionSpeedForAllWarriors(const float Subtr
 
 void ABC_BattleGameModeBase::EndPlayerTurn()
 {
+	if (PlayerInTurnIndex < 0)
+	{
+		EndBattle();
+		return;
+	}
 	PlayerControllers[PlayerInTurnIndex]->Client_EndPlayerTurn();
-	if(IsReadyForNextTurn())
+	if (IsReadyForNextTurn())
 	{
 		const float SubtractingValue = AliveWarriors[1]->GetActionSpeed();
 		SubtractActionSpeedForAllWarriors(SubtractingValue);
@@ -33,48 +38,47 @@ void ABC_BattleGameModeBase::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	GetWorld()->GetTimerManager().ClearTimer(InitBattleHandle);
-	GetWorld()->GetTimerManager().SetTimer(InitBattleHandle, this, &ThisClass::InitBattle, 5.f);
 	const int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
-	
+
+	ABC_BattlePlayerController* BC_NewPlayer = CastChecked<ABC_BattlePlayerController>(NewPlayer);
+	PlayerControllers.Add(BC_NewPlayer);
+	BC_NewPlayer->Server_SetControllerIndex(NumOfPlayers - 1);
 	if (NumOfPlayers == 2)
 	{
-	ABC_BattlePlayerController* BC_NewPlayer = CastChecked<ABC_BattlePlayerController>(NewPlayer);
-	BC_NewPlayer->Server_SetControllerIndex(NumOfPlayers - 1);
-	PlayerControllers.Add(BC_NewPlayer);
+		GetWorld()->GetTimerManager().ClearTimer(InitBattleHandle);
+		GetWorld()->GetTimerManager().SetTimer(InitBattleHandle, this, &ThisClass::InitBattle, 5.f);
 	}
 }
 
 void ABC_BattleGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 ABC_WarriorBase* ABC_BattleGameModeBase::GetNextWarrior()
 {
-	if(AliveWarriors.Num() < 2)
+	if (AliveWarriors.Num() < 2)
 	{
 		return nullptr;
 	}
-	
+
 	AliveWarriors.Sort([](const TObjectPtr<ABC_WarriorBase>& WarriorX, const TObjectPtr<ABC_WarriorBase>& WarriorY)
 	{
 		return WarriorX->IsAlive() && WarriorY->IsAlive() && WarriorX->GetActionSpeed() < WarriorY->GetActionSpeed();
 	});
 
-	if(PlayerControllers[0]->HasAliveWarriors() && PlayerControllers[1]->HasAliveWarriors())
+	if (PlayerControllers[0]->HasAliveWarriors() && PlayerControllers[1]->HasAliveWarriors())
 	{
 		return AliveWarriors[0];
 	}
-	
+
 	return nullptr;
 }
 
 ABC_BattlePlayerController* ABC_BattleGameModeBase::GetPlayerInTurnController(ABC_WarriorBase*& OutNextWarriorInTurn)
 {
 	ABC_WarriorBase* NextWarrior = GetNextWarrior();
-	if(!NextWarrior)
+	if (!NextWarrior)
 	{
 		EndBattle();
 		return nullptr;
@@ -82,9 +86,16 @@ ABC_BattlePlayerController* ABC_BattleGameModeBase::GetPlayerInTurnController(AB
 	PlayerInTurnIndex = NextWarrior->GetPlayerIndex();
 
 	OutNextWarriorInTurn = NextWarrior;
-	
-	ABC_BattlePlayerController* PlayerController = CastChecked<ABC_BattlePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), PlayerInTurnIndex));
-	return PlayerController;
+
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), PlayerInTurnIndex);
+	if (!PlayerController)
+	{
+		EndBattle();
+		return nullptr;
+	}
+	ABC_BattlePlayerController* BattlePlayerController = CastChecked<ABC_BattlePlayerController>(PlayerController);
+
+	return BattlePlayerController;
 }
 
 ABC_BattlePlayerController* ABC_BattleGameModeBase::GetPlayerOutTurnController() const
@@ -98,27 +109,27 @@ ABC_BattlePlayerController* ABC_BattleGameModeBase::GetPlayerOutTurnController()
 void ABC_BattleGameModeBase::SetupBattlePositions()
 {
 	TArray<UObject*> BattlePositions;
-	GetObjectsOfClass(ABattlePosition::StaticClass(),BattlePositions);
+	GetObjectsOfClass(ABattlePosition::StaticClass(), BattlePositions);
 	for (UObject* BattlePositionObject : BattlePositions)
 	{
 		const ABattlePosition* BattlePosition = Cast<ABattlePosition>(BattlePositionObject);
-		BattlePosition->GetBattleTeam() == EBattleTeam::Player_1 ? BattlePositions1.AddUnique(BattlePosition) : BattlePositions2.AddUnique(BattlePosition);
+		BattlePosition->GetBattleTeam() == EBattleTeam::Player_1
+			? BattlePositions1.AddUnique(BattlePosition)
+			: BattlePositions2.AddUnique(BattlePosition);
 	}
 	check(BattlePositions1.Num() > 0 && BattlePositions2.Num() > 0);
 }
 
 void ABC_BattleGameModeBase::InitBattle()
 {
-	UE_LOG(LogTemp,Error, TEXT("!!!!PlayersNum : %d"), GameState.Get()->PlayerArray.Num());
-	
-	PlayerControllers.Add(Cast<ABC_BattlePlayerController>(Cast<ABC_BattlePlayerController>(GameState.Get()->PlayerArray[0].Get()->GetPlayerController())));
-	PlayerControllers.Add(Cast<ABC_BattlePlayerController>(Cast<ABC_BattlePlayerController>(GameState.Get()->PlayerArray[1].Get()->GetPlayerController())));
+	UE_LOG(LogTemp, Error, TEXT("!!!!PlayersNum : %d"), GameState.Get()->PlayerArray.Num());
+
 	//Get BattlePositions and sort by team type
 	SetupBattlePositions();
 
 	PlayerController1 = PlayerControllers[0];
 	PlayerController2 = PlayerControllers[1];
-	
+
 	Server_SpawnWarriors(PlayerControllers[0], BattlePositions1);
 	Server_SpawnWarriors(PlayerControllers[1], BattlePositions2);
 	StartBattle();
@@ -127,12 +138,12 @@ void ABC_BattleGameModeBase::InitBattle()
 void ABC_BattleGameModeBase::StartBattle()
 {
 	ForceNetUpdate();
-	if(!IsReadyForNextTurn())
+	if (!IsReadyForNextTurn())
 	{
 		return;
 	}
 	ABC_WarriorBase* NextWarrior = GetNextWarrior();
-	if(!NextWarrior)
+	if (!NextWarrior)
 	{
 		EndBattle();
 		return;
@@ -150,14 +161,14 @@ bool ABC_BattleGameModeBase::IsReadyForNextTurn()
 
 void ABC_BattleGameModeBase::EndBattle()
 {
-	GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Red, "Battle is ended");
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, "Battle is ended");
 }
 
 void ABC_BattleGameModeBase::StartTurn()
 {
 	ABC_WarriorBase* OutNextWarriorInTurn;
 	ABC_BattlePlayerController* PlayerInTurn = GetPlayerInTurnController(OutNextWarriorInTurn);
-	if(!PlayerInTurn || !OutNextWarriorInTurn)
+	if (!PlayerInTurn || !OutNextWarriorInTurn)
 	{
 		EndBattle();
 		return;
@@ -205,9 +216,15 @@ void ABC_BattleGameModeBase::Server_SpawnWarriors_Implementation(ABC_BattlePlaye
 	{
 		ABC_WarriorBase* WarriorToSpawn = World->SpawnActorDeferred<ABC_WarriorBase>(
 			BattleKitInfo.WarriorClasses[i], FTransform::Identity, InBattlePlayerController);
+
 		const uint32 PlayerIndex = InBattlePlayerController->GetControllerIndex();
+		const uint32 EnemyIndex = PlayerIndex == 0;
+
 		WarriorToSpawn->Server_SetPlayerIndex(PlayerIndex);
-		InBattlePlayerController->Server_AddWarrior(WarriorToSpawn);
+
+		InBattlePlayerController->Server_AddPlayerWarrior(WarriorToSpawn);
+		PlayerControllers[EnemyIndex]->Server_AddEnemyWarrior(WarriorToSpawn);
+
 		AliveWarriors.Add(WarriorToSpawn);
 		NetMulticast_SpawnWarriors(InBattlePositions[i].Get()->GetActorTransform(), WarriorToSpawn);
 	}
@@ -219,5 +236,6 @@ void ABC_BattleGameModeBase::NetMulticast_SpawnWarriors_Implementation(
 	InWarriorToSpawn)
 {
 	InWarriorToSpawn->FinishSpawning(InWarriorTransform);
+	InWarriorToSpawn->SetActorScale3D(FVector::One());
 	InWarriorToSpawn->Server_InitAbilityActorInfo();
 }

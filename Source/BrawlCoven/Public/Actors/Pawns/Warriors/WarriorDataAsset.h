@@ -31,6 +31,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<USkeletalMesh> SkeletalMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UTexture2D> WarriorImageTexture;	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag WarriorType;

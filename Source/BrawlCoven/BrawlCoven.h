@@ -4,3 +4,5 @@
 
 #include "CoreMinimal.h"
 
+const FString DB_FILE_NAME = TEXT("brawlcoven.bd");
+

@@ -2,7 +2,6 @@
 
 
 #include "PlayerControllers/BC_BattlePlayerController.h"
-
 #include "EnhancedInputComponent.h"
 #include "Actors/Pawns/Warriors/BC_WarriorBase.h"
 #include "Combat/Components/BattleKitComponent.h"
@@ -14,9 +13,14 @@ ABC_BattlePlayerController::ABC_BattlePlayerController()
 	BattleKitComponent = CreateDefaultSubobject<UBattleKitComponent>("BattleKitComponent");
 }
 
-void ABC_BattlePlayerController::Server_AddWarrior_Implementation(ABC_WarriorBase* InWarrior)
+void ABC_BattlePlayerController::Server_AddEnemyWarrior_Implementation(ABC_WarriorBase* InWarrior)
 {
-	Warriors.Add(InWarrior);
+	EnemyWarriors.Add(InWarrior);
+}
+
+void ABC_BattlePlayerController::Server_AddPlayerWarrior_Implementation(ABC_WarriorBase* InWarrior)
+{
+	PlayerWarriors.Add(InWarrior);
 }
 
 void ABC_BattlePlayerController::BeginPlay()
@@ -27,7 +31,8 @@ void ABC_BattlePlayerController::BeginPlay()
 void ABC_BattlePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME_CONDITION(ThisClass, Warriors, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ThisClass, PlayerWarriors, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ThisClass, EnemyWarriors, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(ThisClass, ActiveWarrior, COND_OwnerOnly);
 }
 
@@ -54,6 +59,30 @@ void ABC_BattlePlayerController::OnMouseClicked(const FInputActionValue& InputAc
 	{
 		return;
 	}
+
+	FHitResult HitResult;
+	GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
+
+	if(HitResult.bBlockingHit)
+	{
+		AActor* HitActor = HitResult.GetActor();
+		if(!HitActor)
+		{
+			return;;
+		}
+		ABC_WarriorBase* HitWarrior = Cast<ABC_WarriorBase>(HitActor);
+		if(HitWarrior)
+		{
+			SelectedWarrior = HitWarrior;
+			Client_OnSelectedWarriorSet();
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,"Hit Warrior");
+		}
+	}
+}
+
+void ABC_BattlePlayerController::Server_SetSelectedWarrior_Implementation(ABC_WarriorBase* InSelectedWarrior)
+{
+	SelectedWarrior = InSelectedWarrior;
 }
 
 
@@ -78,10 +107,10 @@ void ABC_BattlePlayerController::Server_SetActiveWarrior_Implementation(ABC_Warr
 
 bool ABC_BattlePlayerController::HasAliveWarriors() const
 {
-	return Warriors.Num() > 0 && Warriors.ContainsByPredicate([](const TObjectPtr<ABC_WarriorBase>& Warrior) { return Warrior->IsAlive(); });
+	return PlayerWarriors.Num() > 0 && PlayerWarriors.ContainsByPredicate([](const TObjectPtr<ABC_WarriorBase>& Warrior) { return Warrior->IsAlive(); });
 }
 
-void ABC_BattlePlayerController::OnNextWarriorTurn() const
+void ABC_BattlePlayerController::OnNextWarriorTurn()
 {
 	GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Yellow, *ActiveWarrior->GetName());
 	
@@ -90,4 +119,9 @@ void ABC_BattlePlayerController::OnNextWarriorTurn() const
 void ABC_BattlePlayerController::OnRep_ActiveWarrior()
 {
 	OnNextWarriorTurn();
+}
+
+void ABC_BattlePlayerController::Client_OnSelectedWarriorSet_Implementation()
+{
+	SelectedWarriorSet.Broadcast(SelectedWarrior);
 }

@@ -11,9 +11,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float, NewHealth);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChanged, float, NewMaxHealth);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUltimateEnegryChanged, float, NewUltimateEnergy);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUltimateEnergyChanged, float, NewUltimateEnergy);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxUltimateEnegryChanged, float, NewMaxUltimateEnergy);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxUltimateEnergyChanged, float, NewMaxUltimateEnergy);
 
 class ABC_WarriorBase;
 
@@ -35,9 +35,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "WidgetController|Delegates")
 	FOnMaxHealthChanged OnMaxHealthChanged;
 	UPROPERTY(BlueprintAssignable, Category = "WidgetController|Delegates")
-	FOnUltimateEnegryChanged OnUltimateEnegryChanged;
+	FOnUltimateEnergyChanged OnUltimateEnergyChanged;
 	UPROPERTY(BlueprintAssignable, Category = "WidgetController|Delegates")
-	FOnMaxUltimateEnegryChanged OnMaxUltimateEnegryChanged;
+	FOnMaxUltimateEnergyChanged OnMaxUltimateEnergyChanged;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController|Warrior")

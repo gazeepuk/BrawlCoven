@@ -27,7 +27,7 @@ void ABC_PlayersLobbyGameMode::TravelToBattleLevel()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		bUseSeamlessTravel = true;
-		World->ServerTravel(FString("/Game/Maps/BattleMap?listen"));
+		bUseSeamlessTravel = false;
+		World->ServerTravel(FString("/Game/Assets/Maps/BattleMap?listen"));
 	}
 }
